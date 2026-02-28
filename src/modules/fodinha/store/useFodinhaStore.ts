@@ -40,6 +40,11 @@ export const useFodinhaStore = defineStore("fodinha", () => {
   const addLife = (playerId: string) => {
     const player = players.value.find((p) => p.id === playerId);
     if (!player || player.isEliminated) return;
+
+    if (player.lives >= initialLives.value) {
+      return;
+    }
+
     player.lives += 1;
   };
 
