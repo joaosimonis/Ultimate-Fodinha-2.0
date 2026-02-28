@@ -23,7 +23,9 @@ export function registerPlugins (app: App) {
   app.use(router)
 
   const themeStore = useThemeStore()
+  
   vuetify.theme.global.name.value = themeStore.isDark ? "dark" : "light"
+
   themeStore.$subscribe((_mutation, state) => {
     vuetify.theme.global.name.value = state.isDark ? "dark" : "light"
   })
