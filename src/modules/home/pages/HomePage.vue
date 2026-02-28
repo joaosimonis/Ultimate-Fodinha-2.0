@@ -6,15 +6,15 @@
         <h1 class="text-h4 font-weight-bold mb-2">Ultimate Fodinha 2.0</h1>
         <p class="mb-6 text-medium-emphasis">Contador rápido para Truco e Fodinha</p>
         <div class="d-flex flex-column ga-4">
-          <v-btn block class="text-white" color="primary" rounded="lg" size="x-large">
+          <v-btn block class="text-white" color="primary" rounded="lg" size="x-large" @click="goToTruco">
             <v-icon start icon="mdi-cards" /> 
             <span>Truco</span>
           </v-btn>
-          <v-btn block class="text-white" color="secondary" rounded="lg" size="x-large">
+          <v-btn block class="text-white" color="secondary" rounded="lg" size="x-large" @click="goToFodinha">
             <v-icon start icon="mdi-cards-spade" /> 
             <span>Fodinha</span>
           </v-btn>
-          <v-btn block class="text-white" color="amber-darken-1" rounded="lg" size="x-large">
+          <v-btn block class="text-white" color="amber-darken-1" rounded="lg" size="x-large" @click="goToRanking">
             <v-icon start icon="mdi-trophy" />
             <span>Ranking</span>
           </v-btn>
@@ -29,8 +29,15 @@
 </template>
 
 <script setup lang="ts">
+import { useRouter } from "vue-router";
 import AppHeader from "@/shared/components/AppHeader.vue";
 import AppFooter from "@/shared/components/AppFooter.vue";
+
+const router = useRouter();
+
+const goToTruco = () => router.push({ name: "truco-setup" });
+const goToFodinha = () => router.push({ name: "fodinha-setup" });
+const goToRanking = () => router.push({ name: "ranking" });
 </script>
 
 <style scoped>
