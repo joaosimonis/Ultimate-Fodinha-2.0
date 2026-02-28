@@ -59,14 +59,21 @@ const removeInteractionFallback = () => {
   window.removeEventListener("keydown", handleFirstInteraction);
 };
 
+let introDelayTimeout: ReturnType<typeof setTimeout> | null = null;
+
 onMounted(() => {
-  void introAudio.play().catch(() => {
-    window.addEventListener("pointerdown", handleFirstInteraction, { once: true });
-    window.addEventListener("keydown", handleFirstInteraction, { once: true });
-  });
+  introDelayTimeout = setTimeout(() => {
+    void introAudio.play().catch(() => {
+      window.addEventListener("pointerdown", handleFirstInteraction, { once: true });
+      window.addEventListener("keydown", handleFirstInteraction, { once: true });
+    });
+  }, 1000);
 });
 
 onUnmounted(() => {
+  if (introDelayTimeout) {
+    clearTimeout(introDelayTimeout);
+  }
   removeInteractionFallback();
   introAudio.pause();
   introAudio.currentTime = 0;
