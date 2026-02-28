@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import { useThemeStore } from "@/app/store/useThemeStore";
+import { useThemeStore } from "@/app/stores/theme";
 import appLogo from "@/assets/ultimate-fodinha-logo.svg";
 
 const themeStore = useThemeStore();
