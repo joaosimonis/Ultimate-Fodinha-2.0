@@ -1,6 +1,6 @@
 <template>
   <div class="setup-page d-flex flex-column">
-    <SetupPageHeader title="🂡 Fodinha" />
+    <SetupPageHeader title="Fodinha" title-icon="mdi-cards-spade" />
 
     <v-container class="flex-grow-1 py-6">
       <div class="setup-wrapper mx-auto">
@@ -59,7 +59,7 @@
 
 <script setup lang="ts">
 import { useRouter } from "vue-router";
-import SetupPageHeader from "@/shared/components/SetupPageHeader.vue";
+import SetupPageHeader from "@/shared/components/SetupHeader.vue";
 import { FODINHA_MIN_PLAYERS } from "@/modules/fodinha/constants/fodinha.constants";
 import { useFodinhaSetup } from "@/modules/fodinha/composables/useFodinhaSetup";
 import { useFodinhaStore } from "@/modules/fodinha/store/useFodinhaStore";
