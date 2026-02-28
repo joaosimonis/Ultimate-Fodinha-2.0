@@ -44,20 +44,20 @@ export default defineConfig({
         lang: 'pt-BR',
         icons: [
           {
-            src: '/pwa-192x192.svg',
-            sizes: '192x192',
+            src: '/src/assets/ultimate-fodinha-logo.svg',
+            sizes: 'any',
             type: 'image/svg+xml',
             purpose: 'any',
           },
           {
-            src: '/pwa-512x512.svg',
-            sizes: '512x512',
+            src: '/src/assets/ultimate-fodinha-logo.svg',
+            sizes: 'any',
             type: 'image/svg+xml',
             purpose: 'any',
           },
           {
-            src: '/maskable-icon.svg',
-            sizes: '512x512',
+            src: '/src/assets/ultimate-fodinha-logo.svg',
+            sizes: 'any',
             type: 'image/svg+xml',
             purpose: 'maskable',
           },
