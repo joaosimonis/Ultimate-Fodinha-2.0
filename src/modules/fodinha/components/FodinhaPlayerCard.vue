@@ -14,7 +14,7 @@
             <v-icon icon="mdi-plus" />
           </v-btn>
 
-          <v-btn icon variant="flat" color="error" size="small" :disabled="player.isEliminated" @click="$emit('remove-life', player.id)">
+          <v-btn icon variant="flat" color="error" size="small" :disabled="player.isEliminated" @click="handleRemoveLife(player.id)">
             <v-icon icon="mdi-minus" />
           </v-btn>
         </div>
@@ -25,6 +25,9 @@
 
 <script setup lang="ts">
 import type { FodinhaPlayer } from "@/modules/fodinha/fodinha.types";
+import messiPutoAudio1 from "@/assets/messi-puto-1.mp3";
+import messiPutoAudio2 from "@/assets/messi-puto-2.ogg";
+import messiAudio4 from "@/assets/audio-messi-4.ogg";
 
 interface FodinhaPlayerCardProps {
   player: FodinhaPlayer;
@@ -32,10 +35,22 @@ interface FodinhaPlayerCardProps {
 }
 
 defineProps<FodinhaPlayerCardProps>();
-defineEmits<{
+const emit = defineEmits<{
   "add-life": [playerId: string];
   "remove-life": [playerId: string];
 }>();
+
+const removeLifeAudios = [messiPutoAudio1, messiPutoAudio2, messiAudio4];
+
+const handleRemoveLife = (playerId: string) => {
+  const randomAudioSrc = removeLifeAudios[Math.floor(Math.random() * removeLifeAudios.length)];
+  const audio = new Audio(randomAudioSrc);
+  audio.volume = 1;
+  void audio.play().catch(() => {
+    // Ignore playback errors and keep game interaction responsive.
+  });
+  emit("remove-life", playerId);
+};
 </script>
 
 <style scoped>

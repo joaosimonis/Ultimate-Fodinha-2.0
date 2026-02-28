@@ -9,7 +9,17 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from "vue";
 import SetupPageHeader from "@/shared/components/SetupHeader.vue";
+import audioMuriloPuto from "@/assets/audio-murilo-puto.ogg";
+
+onMounted(() => {
+  const audio = new Audio(audioMuriloPuto);
+  audio.volume = 1;
+  void audio.play().catch(() => {
+    // Ignore autoplay blocking errors until user interaction.
+  });
+});
 </script>
 
 <style scoped>

@@ -58,23 +58,40 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from "vue";
 import { useRouter } from "vue-router";
 import SetupPageHeader from "@/shared/components/SetupHeader.vue";
 import { FODINHA_MIN_PLAYERS } from "@/modules/fodinha/constants/fodinha.constants";
 import { useFodinhaSetup } from "@/modules/fodinha/composables/useFodinhaSetup";
 import { useFodinhaStore } from "@/modules/fodinha/store/useFodinhaStore";
+import audioMessi1 from "@/assets/audio-messi-1.mp3";
+import audioMessi2 from "@/assets/audio-messi-2.mp3";
 
 const router = useRouter();
 const fodinhaStore = useFodinhaStore();
 const { players, playerNameInput, playerError, selectedLives, livesOptions, canAddPlayer, canStart, addPlayer, removePlayer } = useFodinhaSetup();
 
 const startGame = () => {
+  const clickAudio = new Audio(audioMessi2);
+  clickAudio.volume = 1;
+  void clickAudio.play().catch(() => {
+    // Ignore playback errors and continue game start flow.
+  });
+
   fodinhaStore.setup({
     players: players.value,
     initialLives: selectedLives.value,
   });
   router.push({ name: "fodinha-game" });
 };
+
+onMounted(() => {
+  const audio = new Audio(audioMessi1);
+  audio.volume = 1;
+  void audio.play().catch(() => {
+    // Ignore autoplay blocking errors until user interaction.
+  });
+});
 </script>
 
 <style scoped>

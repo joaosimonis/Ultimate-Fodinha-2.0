@@ -29,15 +29,48 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import AppHeader from "@/shared/components/AppHeader.vue";
 import AppFooter from "@/shared/components/AppFooter.vue";
+import messiIntroducaoAudio from "@/assets/messi-introducao.ogg";
 
 const router = useRouter();
 
 const goToTruco = () => router.push({ name: "truco-setup" });
 const goToFodinha = () => router.push({ name: "fodinha-setup" });
 const goToRanking = () => router.push({ name: "ranking" });
+
+const introAudio = new Audio(messiIntroducaoAudio);
+introAudio.volume = 1;
+
+const playIntroAudio = () => {
+  void introAudio.play().catch(() => {
+    // Ignore playback errors and wait for user interaction fallback.
+  });
+};
+
+const handleFirstInteraction = () => {
+  playIntroAudio();
+};
+
+const removeInteractionFallback = () => {
+  window.removeEventListener("pointerdown", handleFirstInteraction);
+  window.removeEventListener("keydown", handleFirstInteraction);
+};
+
+onMounted(() => {
+  void introAudio.play().catch(() => {
+    window.addEventListener("pointerdown", handleFirstInteraction, { once: true });
+    window.addEventListener("keydown", handleFirstInteraction, { once: true });
+  });
+});
+
+onUnmounted(() => {
+  removeInteractionFallback();
+  introAudio.pause();
+  introAudio.currentTime = 0;
+});
 </script>
 
 <style scoped>

@@ -2,6 +2,7 @@ import { fileURLToPath, URL } from 'node:url'
 import Vue from '@vitejs/plugin-vue'
 import Fonts from 'unplugin-fonts/vite'
 import { defineConfig } from 'vite'
+import { VitePWA } from 'vite-plugin-pwa'
 import Vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
 
 // https://vitejs.dev/config/
@@ -26,6 +27,44 @@ export default defineConfig({
             styles: ['normal', 'italic'],
           },
         ],
+      },
+    }),
+    VitePWA({
+      registerType: 'autoUpdate',
+      injectRegister: 'auto',
+      manifest: {
+        name: 'Ultimate Fodinha 2.0',
+        short_name: 'Ultimate Fodinha',
+        description: 'Contador rápido para Truco e Fodinha',
+        theme_color: '#1E88E5',
+        background_color: '#121212',
+        display: 'standalone',
+        start_url: '/',
+        scope: '/',
+        lang: 'pt-BR',
+        icons: [
+          {
+            src: '/pwa-192x192.svg',
+            sizes: '192x192',
+            type: 'image/svg+xml',
+            purpose: 'any',
+          },
+          {
+            src: '/pwa-512x512.svg',
+            sizes: '512x512',
+            type: 'image/svg+xml',
+            purpose: 'any',
+          },
+          {
+            src: '/maskable-icon.svg',
+            sizes: '512x512',
+            type: 'image/svg+xml',
+            purpose: 'maskable',
+          },
+        ],
+      },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
       },
     }),
   ],
