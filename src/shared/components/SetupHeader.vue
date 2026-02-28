@@ -13,6 +13,7 @@
 </template>
 
 <script setup lang="ts">
+import { useAttrs } from "vue";
 import { useRouter } from "vue-router";
 
 interface SetupPageHeaderProps {
@@ -24,10 +25,19 @@ interface SetupPageHeaderProps {
 const props = withDefaults(defineProps<SetupPageHeaderProps>(), {
   backRouteName: "home",
 });
+const emit = defineEmits<{
+  back: [];
+}>();
+const attrs = useAttrs();
 
 const router = useRouter();
 
 const goBack = () => {
+  if ("onBack" in attrs) {
+    emit("back");
+    return;
+  }
+
   router.push({ name: props.backRouteName });
 };
 </script>
