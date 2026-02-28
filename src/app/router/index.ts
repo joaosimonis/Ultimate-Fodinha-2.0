@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useFodinhaStore } from '@/modules/fodinha/store/useFodinhaStore'
 
 import HomePage from '@/modules/home/pages/HomePage.vue'
 import TrucoSetupPage from '@/modules/truco/pages/TrucoSetupPage.vue'
@@ -23,7 +24,18 @@ const router = createRouter({
     // { path: '/fodinha/result', name: 'fodinha-result', component: FodinhaResultPage },
 
     { path: '/ranking', name: 'ranking', component: RankingPage },
+    { path: '/:pathMatch(.*)*', redirect: '/' }
   ],
+})
+
+router.beforeEach((to) => {
+  const fodinhaStore = useFodinhaStore()
+
+  if (to.name === 'fodinha-game' && fodinhaStore.players.length === 0) {
+    return { name: 'fodinha-setup' }
+  }
+
+  return true
 })
 
 export default router
