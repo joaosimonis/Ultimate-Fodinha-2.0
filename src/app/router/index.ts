@@ -39,3 +39,5 @@ router.beforeEach((to) => {
 })
 
 export default router
+
+// Teste deploy
