@@ -1,0 +1,117 @@
+<template>
+  <div>
+    <!-- Estado vazio: nenhum jogador cadastrado -->
+    <div v-if="playersStore.players.length === 0" class="text-center py-6">
+      <v-icon icon="mdi-account-group-outline" size="48" class="text-medium-emphasis mb-3" />
+      <p class="text-body-2 text-medium-emphasis mb-4">Nenhum jogador cadastrado ainda.</p>
+      <v-btn variant="tonal" rounded="lg" @click="goToPlayers"> <v-icon start icon="mdi-plus" /> Cadastrar jogadores </v-btn>
+    </div>
+
+    <!-- Grid de seleção -->
+    <div v-else>
+      <div class="champion-grid mb-3">
+        <div v-for="player in playersStore.players" :key="player.id" class="champion-card" :class="{ 'champion-selected': isSelected(player.id) }" @click="togglePlayer(player)">
+          <div class="champion-avatar-wrapper">
+            <v-avatar size="64">
+              <v-img :src="getAvatarUrl(player.name)" :alt="player.name" />
+            </v-avatar>
+            <div v-if="isSelected(player.id)" class="champion-check">
+              <v-icon icon="mdi-check" size="16" color="white" />
+            </div>
+          </div>
+          <p class="champion-name text-caption font-weight-bold text-truncate mt-1">
+            {{ player.name }}
+          </p>
+        </div>
+      </div>
+
+      <p class="text-caption text-medium-emphasis text-center">{{ modelValue.length }} jogador{{ modelValue.length !== 1 ? "es" : "" }} selecionado{{ modelValue.length !== 1 ? "s" : "" }}</p>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { useRouter } from "vue-router";
+import { usePlayersStore } from "@/shared/store/usePlayersStore";
+import { getAvatarUrl } from "./utils/avatar";
+import type { RegisteredPlayer } from "@/shared/types/players.types";
+
+const props = defineProps<{
+  modelValue: RegisteredPlayer[];
+}>();
+
+const emit = defineEmits<{
+  "update:modelValue": [players: RegisteredPlayer[]];
+}>();
+
+const router = useRouter();
+const playersStore = usePlayersStore();
+
+const isSelected = (id: string) => props.modelValue.some((p) => p.id === id);
+
+const togglePlayer = (player: RegisteredPlayer) => {
+  const already = isSelected(player.id);
+  if (already) {
+    emit(
+      "update:modelValue",
+      props.modelValue.filter((p) => p.id !== player.id)
+    );
+  } else {
+    emit("update:modelValue", [...props.modelValue, player]);
+  }
+};
+
+const goToPlayers = () => router.push({ name: "players" });
+</script>
+
+<style scoped>
+.champion-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.champion-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  padding: 8px 4px;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+  opacity: 0.6;
+}
+
+.champion-card:active {
+  transform: scale(0.95);
+}
+
+.champion-selected {
+  border-color: rgb(var(--v-theme-secondary));
+  opacity: 1;
+  background: rgba(var(--v-theme-secondary), 0.08);
+}
+
+.champion-avatar-wrapper {
+  position: relative;
+}
+
+.champion-check {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: rgb(var(--v-theme-secondary));
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.champion-name {
+  width: 100%;
+  text-align: center;
+}
+</style>

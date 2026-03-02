@@ -2,18 +2,21 @@
   <v-card rounded="lg" :class="{ 'player-eliminated': player.isEliminated }" :elevation="player.isEliminated ? 0 : 2">
     <v-card-text class="pa-4">
       <div class="d-flex align-center justify-space-between">
+        <v-avatar size="48" class="mr-3 flex-shrink-0">
+          <v-img :src="getAvatarUrl(player.name)" :alt="player.name" />
+        </v-avatar>
         <div class="flex-grow-1 mr-3">
-          <p class="text-subtitle-1 font-weight-bold mb-1" :class="{ 'text-medium-emphasis': player.isEliminated }">{{ player.isEliminated ? "💀" : "" }} {{ player.name }}</p>
+          <p class="text-subtitle-1 font-weight-bold mb-1" :class="{ 'text-medium-emphasis': player.isEliminated }">
+            {{ player.isEliminated ? "💀" : "" }} {{ player.name }}
+          </p>
           <div class="d-flex flex-wrap ga-1">
             <span v-for="life in initialLives" :key="life" class="life-icon" :class="{ 'life-lost': life > player.lives }"> ❤️ </span>
           </div>
         </div>
-
         <div class="d-flex align-center ga-2">
           <v-btn icon variant="tonal" color="success" size="small" :disabled="player.isEliminated" @click="$emit('add-life', player.id)">
             <v-icon icon="mdi-plus" />
           </v-btn>
-
           <v-btn icon variant="flat" color="error" size="small" :disabled="player.isEliminated" @click="handleRemoveLife(player.id)">
             <v-icon icon="mdi-minus" />
           </v-btn>
@@ -25,6 +28,7 @@
 
 <script setup lang="ts">
 import type { FodinhaPlayer } from "@/modules/fodinha/fodinha.types";
+import { getAvatarUrl } from "@/shared/utils/avatar";
 import messiPutoAudio1 from "@/assets/messi-puto-1.mp3";
 import messiPutoAudio2 from "@/assets/messi-puto-2.ogg";
 import messiAudio4 from "@/assets/audio-messi-4.ogg";

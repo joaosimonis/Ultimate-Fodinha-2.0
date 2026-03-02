@@ -18,6 +18,10 @@
             <v-icon start icon="mdi-trophy" />
             <span>Ranking</span>
           </v-btn>
+          <v-btn block class="text-white" color="teal-darken-2" rounded="lg" size="x-large" @click="goToPlayers">
+            <v-icon start icon="mdi-account-plus" />
+            <span>Adicionar jogadores</span>
+          </v-btn>
         </div>
         <div class="mt-8">
           <span class="text-caption text-medium-emphasis">Versão 1.0</span>
@@ -40,6 +44,7 @@ const router = useRouter();
 const goToTruco = () => router.push({ name: "truco-setup" });
 const goToFodinha = () => router.push({ name: "fodinha-setup" });
 const goToRanking = () => router.push({ name: "ranking" });
+const goToPlayers = () => router.push({ name: "players" });
 
 const introAudio = new Audio(messiIntroducaoAudio);
 introAudio.volume = 1;

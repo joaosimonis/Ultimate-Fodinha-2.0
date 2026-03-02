@@ -9,6 +9,7 @@ import FodinhaSetupPage from "@/modules/fodinha/pages/FodinhaSetupPage.vue";
 import FodinhaGamePage from "@/modules/fodinha/pages/FodinhaGamePage.vue";
 // import FodinhaResultPage from '@/modules/fodinha/pages/FodinhaResultPage.vue'
 import RankingPage from "@/modules/ranking/pages/RankingPage.vue";
+import PlayersPage from "@/modules/players/PlayersPage.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -35,6 +36,7 @@ const router = createRouter({
     // { path: '/fodinha/result', name: 'fodinha-result', component: FodinhaResultPage },
 
     { path: "/ranking", name: "ranking", component: RankingPage },
+    { path: "/players", name: "players", component: PlayersPage },
     { path: "/:pathMatch(.*)*", redirect: "/" },
   ],
 });
