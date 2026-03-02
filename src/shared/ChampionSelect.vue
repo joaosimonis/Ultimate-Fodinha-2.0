@@ -10,7 +10,16 @@
     <!-- Grid de seleção -->
     <div v-else>
       <div class="champion-grid mb-3">
-        <div v-for="player in playersStore.players" :key="player.id" class="champion-card" :class="{ 'champion-selected': isSelected(player.id) }" @click="togglePlayer(player)">
+        <div
+          v-for="player in availablePlayers"
+          :key="player.id"
+          class="champion-card"
+          :class="{
+            'champion-selected': isSelected(player.id),
+            'champion-disabled': isDisabled(player.id),
+          }"
+          @click="togglePlayer(player)"
+        >
           <div class="champion-avatar-wrapper">
             <v-avatar size="64">
               <v-img :src="getAvatarUrl(player.name)" :alt="player.name" />
@@ -25,19 +34,22 @@
         </div>
       </div>
 
-      <p class="text-caption text-medium-emphasis text-center">{{ modelValue.length }} jogador{{ modelValue.length !== 1 ? "es" : "" }} selecionado{{ modelValue.length !== 1 ? "s" : "" }}</p>
+      <p class="text-caption text-medium-emphasis text-center">{{ modelValue.length }}{{ max ? `/${max}` : "" }} jogador{{ modelValue.length !== 1 ? "es" : "" }} selecionado{{ modelValue.length !== 1 ? "s" : "" }}</p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
 import { useRouter } from "vue-router";
 import { usePlayersStore } from "@/shared/store/usePlayersStore";
-import { getAvatarUrl } from "./utils/avatar";
+import { getAvatarUrl } from "@/shared/utils/avatar";
 import type { RegisteredPlayer } from "@/shared/types/players.types";
 
 const props = defineProps<{
   modelValue: RegisteredPlayer[];
+  max?: number;
+  exclude?: RegisteredPlayer[];
 }>();
 
 const emit = defineEmits<{
@@ -47,9 +59,21 @@ const emit = defineEmits<{
 const router = useRouter();
 const playersStore = usePlayersStore();
 
+// Filtra jogadores excluídos (ex: já selecionados na outra equipe)
+const availablePlayers = computed(() => playersStore.players)
+
 const isSelected = (id: string) => props.modelValue.some((p) => p.id === id);
 
+// Desabilita se atingiu o max e o jogador não está selecionado
+const isDisabled = (id: string) => {
+  const excludedIds = new Set(props.exclude?.map((p) => p.id) ?? [])
+  if (excludedIds.has(id)) return true
+  return !!props.max && props.modelValue.length >= props.max && !isSelected(id)
+}
+
 const togglePlayer = (player: RegisteredPlayer) => {
+  if (isDisabled(player.id)) return;
+
   const already = isSelected(player.id);
   if (already) {
     emit(
@@ -91,6 +115,12 @@ const goToPlayers = () => router.push({ name: "players" });
   border-color: rgb(var(--v-theme-secondary));
   opacity: 1;
   background: rgba(var(--v-theme-secondary), 0.08);
+}
+
+.champion-disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 .champion-avatar-wrapper {

@@ -3,8 +3,7 @@ import { useFodinhaStore } from "@/modules/fodinha/store/useFodinhaStore";
 
 import HomePage from "@/modules/home/pages/HomePage.vue";
 import TrucoSetupPage from "@/modules/truco/pages/TrucoSetupPage.vue";
-// import TrucoGamePage from '@/modules/truco/pages/TrucoGamePage.vue'
-// import TrucoResultPage from '@/modules/truco/pages/TrucoResultPage.vue'
+import TrucoGamePage from '@/modules/truco/pages/TrucoGamePage.vue'
 import FodinhaSetupPage from "@/modules/fodinha/pages/FodinhaSetupPage.vue";
 import FodinhaGamePage from "@/modules/fodinha/pages/FodinhaGamePage.vue";
 // import FodinhaResultPage from '@/modules/fodinha/pages/FodinhaResultPage.vue'
@@ -17,8 +16,7 @@ const router = createRouter({
     { path: "/", name: "home", component: HomePage },
 
     { path: "/truco/setup", name: "truco-setup", component: TrucoSetupPage },
-    // { path: '/truco/game', name: 'truco-game', component: TrucoGamePage },
-    // { path: '/truco/result', name: 'truco-result', component: TrucoResultPage },
+    { path: '/truco/game', name: 'truco-game', component: TrucoGamePage },
 
     { path: "/fodinha/setup", name: "fodinha-setup", component: FodinhaSetupPage },
     {
