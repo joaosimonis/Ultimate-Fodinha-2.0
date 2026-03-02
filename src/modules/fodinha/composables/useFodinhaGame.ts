@@ -7,7 +7,7 @@ export function useFodinhaGame() {
   const fodinhaStore = useFodinhaStore();
 
   const confirmExit = ref(false);
-  const showWinner = ref(false);
+  const showWinner = ref(Boolean(fodinhaStore.winner));
 
   const topThree = computed(() => {
     const winner = fodinhaStore.winner;
@@ -37,6 +37,7 @@ export function useFodinhaGame() {
 
   const exitGame = () => {
     confirmExit.value = false;
+    fodinhaStore.clear();
     router.push({ name: "home" });
   };
 
@@ -47,11 +48,13 @@ export function useFodinhaGame() {
 
   const reconfigure = () => {
     showWinner.value = false;
+    fodinhaStore.clear();
     router.push({ name: "fodinha-setup" });
   };
 
   const goHome = () => {
     showWinner.value = false;
+    fodinhaStore.clear();
     router.push({ name: "home" });
   };
 
