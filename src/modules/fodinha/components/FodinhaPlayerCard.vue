@@ -27,7 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import type { FodinhaPlayer } from "@/modules/fodinha/fodinha.types";
+import type { FodinhaPlayer } from "@/modules/fodinha/types/fodinha.types";
 import { getAvatarUrl } from "@/shared/utils/avatar";
 import messiPutoAudio1 from "@/assets/messi-puto-1.mp3";
 import messiPutoAudio2 from "@/assets/messi-puto-2.ogg";

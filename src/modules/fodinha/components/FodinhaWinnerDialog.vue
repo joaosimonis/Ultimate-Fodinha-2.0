@@ -32,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import type { FodinhaPlayer } from "@/modules/fodinha/fodinha.types";
+import type { FodinhaPlayer } from "@/modules/fodinha/types/fodinha.types";
 
 interface FodinhaWinnerDialogProps {
   modelValue: boolean;

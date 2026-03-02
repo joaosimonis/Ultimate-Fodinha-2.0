@@ -1,6 +1,6 @@
 import { computed, ref } from "vue";
 import { FODINHA_DEFAULT_LIVES, FODINHA_LIVES_OPTIONS, FODINHA_MIN_PLAYERS } from "@/modules/fodinha/constants/fodinha.constants";
-import type { FodinhaSetupPlayer } from "@/modules/fodinha/fodinha.types";
+import type { FodinhaSetupPlayer } from "@/modules/fodinha/types/fodinha.types";
 
 export function useFodinhaSetup() {
   const players = ref<FodinhaSetupPlayer[]>([]);

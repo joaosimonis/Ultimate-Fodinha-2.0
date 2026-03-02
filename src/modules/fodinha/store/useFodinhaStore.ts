@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
 import { FODINHA_DEFAULT_LIVES } from "@/modules/fodinha/constants/fodinha.constants";
-import type { FodinhaPlayer, FodinhaSetupPayload } from "@/modules/fodinha/fodinha.types";
+import type { FodinhaPlayer, FodinhaSetupPayload } from "@/modules/fodinha/types/fodinha.types";
 
 export const useFodinhaStore = defineStore(
   "fodinha",
