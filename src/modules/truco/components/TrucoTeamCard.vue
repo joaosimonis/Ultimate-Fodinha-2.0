@@ -4,15 +4,12 @@
       <!-- Nome da equipe + placar -->
       <div class="d-flex align-center justify-space-between mb-3">
         <div>
-          <p class="text-caption text-medium-emphasis mb-0">Equipe</p>
+          <p class="text-caption text-medium-emphasis mb-0">Equipe {{ teamNumber }}</p>
           <p class="text-subtitle-1 font-weight-bold">{{ trucoStore.teamName(team) }}</p>
         </div>
-        <div class="text-right">
-          <p class="score-display font-weight-black" :style="{ color: `rgb(var(--v-theme-${color}))` }">
-            {{ team.score }}
-          </p>
-          <p class="text-caption text-medium-emphasis">/ {{ maxScore }}</p>
-        </div>
+        <p class="score-display font-weight-black" :style="{ color: `rgb(var(--v-theme-${color}))` }">
+          {{ team.score }}<span class="text-caption text-medium-emphasis font-weight-regular"> /{{ maxScore }}</span>
+        </p>
       </div>
 
       <!-- Avatares dos jogadores -->
@@ -25,11 +22,16 @@
         </div>
       </div>
 
-      <!-- Botão +1 -->
-      <v-btn block :color="color" size="x-large" rounded="lg" class="text-white" :disabled="!!trucoStore.winner" @click="$emit('add-point')">
-        <v-icon start icon="mdi-plus" size="28" />
-        <span class="text-h6">+1 Ponto</span>
-      </v-btn>
+      <!-- Botões de pontuação -->
+      <div class="d-flex ga-3 justify-end">
+        <v-btn icon variant="tonal" color="grey" size="x-large" :disabled="!!trucoStore.winner || team.score === 0" @click="$emit('remove-point')">
+          <v-icon icon="mdi-minus" size="28" />
+        </v-btn>
+
+        <v-btn icon :color="color" size="x-large" :disabled="!!trucoStore.winner" @click="$emit('add-point')">
+          <v-icon icon="mdi-plus" size="28" />
+        </v-btn>
+      </div>
     </v-card-text>
   </v-card>
 </template>
@@ -41,12 +43,14 @@ import type { TrucoTeam } from "../types/truco.types";
 
 defineProps<{
   team: TrucoTeam;
+  teamNumber: number;
   maxScore: number;
   color: string;
 }>();
 
 defineEmits<{
   "add-point": [];
+  "remove-point": [];
 }>();
 
 const trucoStore = useTrucoStore();

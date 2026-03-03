@@ -38,6 +38,12 @@ export const useTrucoStore = defineStore("truco", () => {
     });
   };
 
+  const removePoint = (teamId: string) => {
+    const team = teams.value.find((t) => t.id === teamId);
+    if (!team || team.score === 0) return;
+    team.score -= 1;
+  };
+
   const reset = () => {
     teams.value = teams.value.map((t) => ({ ...t, score: 0 }));
     history.value = [];
@@ -52,6 +58,7 @@ export const useTrucoStore = defineStore("truco", () => {
     teamName,
     setup,
     addPoint,
+    removePoint,
     reset,
   };
 });

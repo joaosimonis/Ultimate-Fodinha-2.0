@@ -6,7 +6,7 @@
       <div class="game-wrapper mx-auto">
         <!-- Cards das equipes -->
         <div class="d-flex flex-column ga-4 mb-6">
-          <TrucoTeamCard v-for="(team, index) in trucoStore.teams" :key="team.id" :team="team" :max-score="trucoStore.maxScore" :color="index === 0 ? 'primary' : 'error'" @add-point="trucoStore.addPoint(team.id)" />
+          <TrucoTeamCard v-for="(team, index) in trucoStore.teams" :key="team.id" :team="team" :team-number="index + 1" :max-score="trucoStore.maxScore" :color="index === 0 ? 'primary' : 'error'" @add-point="trucoStore.addPoint(team.id)" @remove-point="trucoStore.removePoint(team.id)"/>
         </div>
       </div>
     </v-container>
@@ -50,9 +50,18 @@
           </v-card>
 
           <div class="d-flex flex-column ga-3">
-            <v-btn color="primary" variant="flat" rounded="lg" size="large" @click="newGameSameTeams"> <v-icon start icon="mdi-refresh" /> Novo jogo </v-btn>
-            <v-btn variant="tonal" rounded="lg" size="large" @click="reconfigure"> <v-icon start icon="mdi-cog" /> Reconfigurar </v-btn>
-            <v-btn variant="text" rounded="lg" @click="goHome"> <v-icon start icon="mdi-home" /> Início </v-btn>
+            <v-btn color="primary" variant="flat" rounded="lg" size="large" @click="newGameSameTeams"> 
+              <v-icon start icon="mdi-refresh" /> 
+              <span>Novo jogo</span> 
+            </v-btn>
+            <v-btn variant="tonal" rounded="lg" size="large" @click="reconfigure"> 
+              <v-icon start icon="mdi-cog" /> 
+              <span>Reconfigurar</span>
+            </v-btn>
+            <v-btn variant="text" rounded="lg" @click="goHome"> 
+              <v-icon start icon="mdi-home" /> 
+              <span>Início</span>
+            </v-btn>
           </div>
         </v-card-text>
       </v-card>
