@@ -13,7 +13,7 @@ import rogus from "@/assets/players/rogus.png"
 import thais from "@/assets/players/thais.png"
 import thiago from "@/assets/players/thiago.png"
 
-import fallback from "@/assets/ultimate-fodinha-logo.svg"
+import fallback from "@/assets/tc.png"
 
 const avatarMap: Record<string, string> = {
   angela,
