@@ -83,11 +83,12 @@ const trucoStore = useTrucoStore();
 const confirmExit = ref(false);
 const exitGame = () => {
   confirmExit.value = false;
+  trucoStore.clear();
   router.push({ name: "home" });
 };
 
 // --- Vencedor ---
-const showWinner = ref(false);
+const showWinner = ref(Boolean(trucoStore.winner));
 watch(
   () => trucoStore.winner,
   (winner) => {
@@ -103,11 +104,13 @@ const newGameSameTeams = () => {
 
 const reconfigure = () => {
   showWinner.value = false;
+  trucoStore.clear();
   router.push({ name: "truco-setup" });
 };
 
 const goHome = () => {
   showWinner.value = false;
+  trucoStore.clear();
   router.push({ name: "home" });
 };
 </script>

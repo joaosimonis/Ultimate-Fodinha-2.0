@@ -1,12 +1,12 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { useFodinhaStore } from "@/modules/fodinha/store/useFodinhaStore";
+import { useTrucoStore } from "@/modules/truco/store/useTrucoStore";
 
 import HomePage from "@/modules/home/pages/HomePage.vue";
 import TrucoSetupPage from "@/modules/truco/pages/TrucoSetupPage.vue";
 import TrucoGamePage from '@/modules/truco/pages/TrucoGamePage.vue'
 import FodinhaSetupPage from "@/modules/fodinha/pages/FodinhaSetupPage.vue";
 import FodinhaGamePage from "@/modules/fodinha/pages/FodinhaGamePage.vue";
-// import FodinhaResultPage from '@/modules/fodinha/pages/FodinhaResultPage.vue'
 import RankingPage from "@/modules/ranking/pages/RankingPage.vue";
 import PlayersPage from "@/modules/players/PlayersPage.vue";
 
@@ -16,7 +16,18 @@ const router = createRouter({
     { path: "/", name: "home", component: HomePage },
 
     { path: "/truco/setup", name: "truco-setup", component: TrucoSetupPage },
-    { path: '/truco/game', name: 'truco-game', component: TrucoGamePage },
+    {
+      path: "/truco/game",
+      name: "truco-game",
+      component: TrucoGamePage,
+      beforeEnter: () => {
+        const trucoStore = useTrucoStore();
+
+        if (!trucoStore.hasGame) {
+          return { name: "truco-setup" };
+        }
+      },
+    },
 
     { path: "/fodinha/setup", name: "fodinha-setup", component: FodinhaSetupPage },
     {
@@ -31,7 +42,6 @@ const router = createRouter({
         }
       },
     },
-    // { path: '/fodinha/result', name: 'fodinha-result', component: FodinhaResultPage },
 
     { path: "/ranking", name: "ranking", component: RankingPage },
     { path: "/players", name: "players", component: PlayersPage },
@@ -40,7 +50,3 @@ const router = createRouter({
 });
 
 export default router;
-
-// Teste deploy
-// Teste deploy 2
-// Teste deploy 3
