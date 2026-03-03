@@ -72,6 +72,9 @@ export const useRankingStore = defineStore(
     };
 
     return {
+      fodinhPlayerStats,
+      trucoPlayerStats,
+      trucoTeamStats,
       fodinhRanking,
       trucoPlayerRanking,
       trucoTeamRanking,
@@ -80,5 +83,10 @@ export const useRankingStore = defineStore(
       clearAll,
     };
   },
-  { persist: true }
+  {
+    persist: {
+      key: "ranking",
+      pick: ["fodinhPlayerStats", "trucoPlayerStats", "trucoTeamStats"],
+    },
+  }
 );
