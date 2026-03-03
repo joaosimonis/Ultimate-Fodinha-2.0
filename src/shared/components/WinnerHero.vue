@@ -95,20 +95,7 @@ const sparkles = [
   place-items: center;
   width: 5.25rem;
   height: 5.25rem;
-  border-radius: 1.5rem;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(var(--winner-accent), 0.18));
-  box-shadow:
-    0 0.75rem 1.75rem rgba(var(--winner-accent), 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
   animation: winner-shell-float 2.8s ease-in-out infinite;
-}
-
-.winner-hero__trophy-shell::before {
-  content: "";
-  position: absolute;
-  inset: 0.3rem;
-  border-radius: 1.2rem;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.14));
 }
 
 .winner-hero__trophy {
