@@ -1,16 +1,12 @@
 <template>
   <div class="players-page d-flex flex-column">
-    <v-app-bar flat density="comfortable" class="px-2">
-      <v-container class="d-flex align-center py-0">
-        <v-btn icon variant="text" size="large" @click="goBack">
-          <v-icon icon="mdi-arrow-left" size="28" />
-        </v-btn>
-        <h3 class="font-weight-bold text-center flex-grow-1">👥 Jogadores</h3>
+    <SetupHeader title="Jogadores" title-icon="mdi-account-group" @back="goBack">
+      <template #actions>
         <v-btn icon variant="text" size="large" @click="openAddDialog">
           <v-icon icon="mdi-plus" size="28" />
         </v-btn>
-      </v-container>
-    </v-app-bar>
+      </template>
+    </SetupHeader>
 
     <v-container class="flex-grow-1 py-6">
       <div class="players-wrapper mx-auto">
@@ -18,7 +14,7 @@
         <div v-if="playersStore.players.length === 0" class="text-center py-12">
           <v-icon icon="mdi-account-group-outline" size="64" class="text-medium-emphasis mb-4" />
           <p class="text-subtitle-1 font-weight-bold mb-1">Nenhum jogador cadastrado</p>
-          <p class="text-caption text-medium-emphasis mb-6">Adicione jogadores para usar no Fodinha</p>
+          <p class="text-caption text-medium-emphasis mb-6">Adicione jogadores para usar no Ultimate Fodinha 2.0</p>
           <v-btn color="secondary" rounded="lg" @click="openAddDialog"> <v-icon start icon="mdi-plus" /> Adicionar jogador </v-btn>
         </div>
 
@@ -81,6 +77,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import SetupHeader from "@/shared/components/SetupHeader.vue";
 import { usePlayersStore } from "@/shared/store/usePlayersStore";
 import { getAvatarUrl } from "@/shared/utils/avatar";
 import type { RegisteredPlayer } from "@/shared/types/players.types";

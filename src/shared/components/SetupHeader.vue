@@ -8,6 +8,9 @@
         <v-icon v-if="titleIcon" :icon="titleIcon" size="24" class="mr-2" />
         <span>{{ title }}</span>
       </h3>
+      <div class="header-actions">
+        <slot name="actions" />
+      </div>
     </v-container>
   </v-app-bar>
 </template>
@@ -53,5 +56,10 @@ const goBack = () => {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.header-actions {
+  display: flex;
+  justify-content: flex-end;
 }
 </style>
