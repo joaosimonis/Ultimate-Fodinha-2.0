@@ -24,7 +24,7 @@
           </v-btn>
         </div>
         <div class="mt-8">
-          <span class="text-caption text-medium-emphasis">Versão 1.0</span>
+          <span class="text-caption text-medium-emphasis">Versão 2.0</span>
         </div>
       </div>
     </v-container>
