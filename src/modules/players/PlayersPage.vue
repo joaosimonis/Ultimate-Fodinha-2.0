@@ -22,15 +22,17 @@
         <div v-else class="players-grid">
           <v-slide-y-transition group>
             <div v-for="player in playersStore.players" :key="player.id" class="player-card-wrapper">
-              <v-card rounded="lg" elevation="2" class="player-card text-center pa-3">
-                <v-avatar size="72" class="mb-2">
-                  <v-img :src="getAvatarUrl(player.name)" :alt="player.name" />
-                </v-avatar>
-                <p class="text-body-2 font-weight-bold text-truncate">{{ player.name }}</p>
-                <v-btn icon variant="text" color="error" size="x-small" class="delete-btn" @click="confirmDelete(player)">
-                  <v-icon icon="mdi-close" size="16" />
-                </v-btn>
-              </v-card>
+              <div class="player-card text-center">
+                <div class="avatar-wrapper">
+                  <v-avatar size="72">
+                    <v-img :src="getAvatarUrl(player.name)" :alt="player.name" />
+                  </v-avatar>
+                  <v-btn icon variant="flat" color="error" size="x-small" class="delete-btn" @click="confirmDelete(player)">
+                    <v-icon icon="mdi-close" size="10" />
+                  </v-btn>
+                </div>
+                <p class="text-caption font-weight-bold mt-1 text-truncate">{{ player.name }}</p>
+              </div>
             </div>
           </v-slide-y-transition>
         </div>
@@ -147,17 +149,30 @@ const deletePlayer = () => {
 
 .players-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 12px;
 }
 
 .player-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.avatar-wrapper {
   position: relative;
 }
 
 .delete-btn {
   position: absolute;
-  top: 4px;
-  right: 4px;
+  top: -2px;
+  right: -2px;
+  width: 18px !important;
+  height: 18px !important;
+}
+
+.player-card-wrapper {
+  display: flex;
+  justify-content: center;
 }
 </style>
