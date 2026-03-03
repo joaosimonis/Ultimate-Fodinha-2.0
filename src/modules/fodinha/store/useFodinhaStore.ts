@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { computed, ref } from "vue";
 import { FODINHA_DEFAULT_LIVES } from "@/modules/fodinha/constants/fodinha.constants";
 import type { FodinhaPlayer, FodinhaSetupPayload } from "@/modules/fodinha/types/fodinha.types";
+import { useRankingStore } from "@/modules/ranking/store/useRankingStore";
 
 export const useFodinhaStore = defineStore(
   "fodinha",
@@ -37,6 +38,16 @@ export const useFodinhaStore = defineStore(
         player.isEliminated = true;
         eliminationCounter.value += 1;
         player.eliminationOrder = eliminationCounter.value;
+
+        // Verifica vencedor
+        const active = players.value.filter((p) => !p.isEliminated);
+        if (active.length === 1 && active[0]) {
+          const rankingStore = useRankingStore();
+          rankingStore.registerFodinhaResult(
+            players.value.map((p) => ({ id: p.id, name: p.name })),
+            active[0].id
+          );
+        }
       }
     };
 

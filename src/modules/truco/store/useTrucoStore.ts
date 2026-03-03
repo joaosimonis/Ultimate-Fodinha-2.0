@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import type { TrucoTeam, TrucoSetupPayload, TrucoMatchHistory, TrucoMode } from "../types/truco.types";
+import { useRankingStore } from "@/modules/ranking/store/useRankingStore";
 
 export const useTrucoStore = defineStore(
   "truco",
@@ -39,6 +40,16 @@ export const useTrucoStore = defineStore(
         point: team.score,
         timestamp: Date.now(),
       });
+
+      // Registra no ranking quando vencer
+      if (team.score >= maxScore.value) {
+        const rankingStore = useRankingStore();
+        const winnerIndex = teams.value.findIndex((t) => t.id === teamId);
+        rankingStore.registerTrucoResult(
+          teams.value.map((t) => ({ players: t.players })),
+          winnerIndex
+        );
+      }
     };
 
     const removePoint = (teamId: string) => {
