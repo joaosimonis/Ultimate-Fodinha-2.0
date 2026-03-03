@@ -25,7 +25,7 @@
               <v-img :src="getAvatarUrl(player.name)" :alt="player.name" />
             </v-avatar>
             <div v-if="isSelected(player.id)" class="champion-check">
-              <v-icon icon="mdi-check" size="16" color="white" />
+              <v-icon icon="mdi-check" size="12" color="white" />
             </div>
           </div>
           <p class="champion-name text-caption font-weight-bold text-truncate mt-1">
@@ -60,16 +60,16 @@ const router = useRouter();
 const playersStore = usePlayersStore();
 
 // Filtra jogadores excluídos (ex: já selecionados na outra equipe)
-const availablePlayers = computed(() => playersStore.players)
+const availablePlayers = computed(() => playersStore.players);
 
 const isSelected = (id: string) => props.modelValue.some((p) => p.id === id);
 
 // Desabilita se atingiu o max e o jogador não está selecionado
 const isDisabled = (id: string) => {
-  const excludedIds = new Set(props.exclude?.map((p) => p.id) ?? [])
-  if (excludedIds.has(id)) return true
-  return !!props.max && props.modelValue.length >= props.max && !isSelected(id)
-}
+  const excludedIds = new Set(props.exclude?.map((p) => p.id) ?? []);
+  if (excludedIds.has(id)) return true;
+  return !!props.max && props.modelValue.length >= props.max && !isSelected(id);
+};
 
 const togglePlayer = (player: RegisteredPlayer) => {
   if (isDisabled(player.id)) return;
@@ -100,11 +100,11 @@ const goToPlayers = () => router.push({ name: "players" });
   flex-direction: column;
   align-items: center;
   cursor: pointer;
-  padding: 8px 4px;
   border-radius: 12px;
   border: 2px solid transparent;
   transition: all 0.2s ease;
   opacity: 0.6;
+  padding: 4px; 
 }
 
 .champion-card:active {
@@ -112,9 +112,13 @@ const goToPlayers = () => router.push({ name: "players" });
 }
 
 .champion-selected {
-  border-color: rgb(var(--v-theme-secondary));
   opacity: 1;
-  background: rgba(var(--v-theme-secondary), 0.08);
+}
+
+.champion-selected .champion-avatar-wrapper {
+  outline: 2px solid rgb(var(--v-theme-secondary));
+  outline-offset: 2px;
+  border-radius: 50%;
 }
 
 .champion-disabled {
@@ -133,8 +137,8 @@ const goToPlayers = () => router.push({ name: "players" });
   right: 0;
   background: rgb(var(--v-theme-secondary));
   border-radius: 50%;
-  width: 22px;
-  height: 22px;
+  width: 18px;
+  height: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
