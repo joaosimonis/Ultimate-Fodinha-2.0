@@ -27,9 +27,11 @@
     <v-dialog v-model="showWinner" persistent max-width="360">
       <v-card rounded="lg" class="text-center">
         <v-card-text class="pa-6">
-          <p class="text-h2 mb-2">🏆</p>
-          <p class="text-h5 font-weight-bold mb-1">{{ trucoStore.winner ? trucoStore.teamName(trucoStore.winner) : "" }}</p>
-          <p class="text-medium-emphasis mb-6">venceu a partida!</p>
+          <WinnerHero
+            class="mb-6"
+            :winner-name="trucoStore.winner ? trucoStore.teamName(trucoStore.winner) : ''"
+            tone="primary"
+          />
 
           <!-- Placar final -->
           <v-card variant="tonal" rounded="lg" class="mb-6">
@@ -54,11 +56,11 @@
               <v-icon start icon="mdi-refresh" />
               <span>Novo jogo</span>
             </v-btn>
-            <v-btn variant="tonal" rounded="lg" size="large" @click="reconfigure">
+            <v-btn color="surface-variant" variant="tonal" rounded="lg" size="large" @click="reconfigure">
               <v-icon start icon="mdi-cog" />
               <span>Reconfigurar</span>
             </v-btn>
-            <v-btn variant="text" rounded="lg" @click="goHome">
+            <v-btn class="winner-dialog__home-btn" variant="outlined" color="medium-emphasis" rounded="lg" size="large" @click="goHome">
               <v-icon start icon="mdi-home" />
               <span>Início</span>
             </v-btn>
@@ -73,13 +75,16 @@
 import { ref, watch, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import SetupHeader from "@/shared/components/SetupHeader.vue";
+import WinnerHero from "@/shared/components/WinnerHero.vue";
 import TrucoTeamCard from "@/modules/truco/components/TrucoTeamCard.vue";
 import { useTrucoStore } from "@/modules/truco/store/useTrucoStore";
 import { useWakeLock } from "@/shared/composables/useWakeLock";
+import { useConfetti } from "@/shared/composables/useConfetti";
 
 const router = useRouter();
 const trucoStore = useTrucoStore();
 
+const { fireConfetti } = useConfetti();
 const { request } = useWakeLock();
 
 // --- Saída ---
@@ -92,12 +97,6 @@ const exitGame = () => {
 
 // --- Vencedor ---
 const showWinner = ref(Boolean(trucoStore.winner));
-watch(
-  () => trucoStore.winner,
-  (winner) => {
-    if (winner) showWinner.value = true;
-  }
-);
 
 // --- Ações pós-jogo ---
 const newGameSameTeams = () => {
@@ -117,6 +116,16 @@ const goHome = () => {
   router.push({ name: "home" });
 };
 
+watch(
+  () => trucoStore.winner, 
+  (winner) => {
+    if (winner) {
+      showWinner.value = true
+      fireConfetti()
+    }
+  }
+)
+
 onMounted(() => {
   void request();
 });
@@ -130,5 +139,10 @@ onMounted(() => {
 .game-wrapper {
   max-width: 480px;
   width: 100%;
+}
+
+.winner-dialog__home-btn {
+  background: rgba(var(--v-theme-on-surface), 0.03);
+  border-color: rgba(var(--v-theme-on-surface), 0.08);
 }
 </style>

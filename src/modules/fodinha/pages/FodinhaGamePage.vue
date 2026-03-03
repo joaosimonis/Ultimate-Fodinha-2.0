@@ -40,16 +40,28 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { onMounted, watch } from "vue";
 
 import SetupHeader from "@/shared/components/SetupHeader.vue";
 import FodinhaPlayerCard from "@/modules/fodinha/components/FodinhaPlayerCard.vue";
 import FodinhaWinnerDialog from "@/modules/fodinha/components/FodinhaWinnerDialog.vue";
 import { useFodinhaGame } from "@/modules/fodinha/composables/useFodinhaGame";
 import { useWakeLock } from "@/shared/composables/useWakeLock";
+import { useConfetti } from "@/shared/composables/useConfetti";
 
+const { fireConfetti } = useConfetti();
 const { request } = useWakeLock();
 const { fodinhaStore, confirmExit, showWinner, topThree, openExitConfirmation, closeExitConfirmation, exitGame, newGameSamePlayers, reconfigure, goHome } = useFodinhaGame();
+
+watch(
+  () => fodinhaStore.winner, 
+  (winner) => {
+    if (winner) {
+      showWinner.value = true
+      fireConfetti()
+    }
+  }
+)
 
 onMounted(() => {
   void request()
