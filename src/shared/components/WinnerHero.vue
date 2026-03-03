@@ -10,7 +10,7 @@
       </span>
 
       <div class="winner-hero__trophy-shell">
-        <div class="winner-hero__trophy">🏆</div>
+        <v-icon class="winner-hero__trophy" icon="mdi-trophy" />
       </div>
     </div>
 
@@ -35,6 +35,7 @@ const props = withDefaults(defineProps<WinnerHeroProps>(), {
 
 const heroStyle = computed(() => ({
   "--winner-accent": `var(--v-theme-${props.tone})`,
+  "--winner-gold-rgb": "244, 197, 66",
 }));
 
 const sparkles = [
@@ -67,7 +68,7 @@ const sparkles = [
   position: absolute;
   inset: 1rem;
   border-radius: 999px;
-  background: radial-gradient(circle, rgba(var(--winner-accent), 0.42) 0%, rgba(var(--winner-accent), 0.16) 42%, rgba(var(--winner-accent), 0) 72%);
+  background: radial-gradient(circle, rgba(var(--winner-gold-rgb), 0.34) 0%, rgba(var(--winner-gold-rgb), 0.12) 42%, rgba(var(--winner-gold-rgb), 0) 72%);
   filter: blur(6px);
   animation: winner-glow-breathe 2.2s ease-in-out infinite;
 }
@@ -75,7 +76,7 @@ const sparkles = [
 .winner-hero__ring {
   position: absolute;
   border-radius: 999px;
-  border: 2px solid rgba(var(--winner-accent), 0.24);
+  border: 2px solid rgba(var(--winner-gold-rgb), 0.26);
 }
 
 .winner-hero__ring--inner {
@@ -115,7 +116,8 @@ const sparkles = [
   z-index: 1;
   font-size: 3.1rem;
   line-height: 1;
-  filter: drop-shadow(0 0.4rem 0.5rem rgba(var(--winner-accent), 0.22));
+  color: #f4c542;
+  filter: drop-shadow(0 0.4rem 0.5rem rgba(var(--winner-gold-rgb), 0.26));
   animation:
     winner-trophy-entrance 900ms cubic-bezier(0.2, 0.9, 0.22, 1.2),
     winner-trophy-sway 2.8s ease-in-out 900ms infinite;
@@ -124,8 +126,8 @@ const sparkles = [
 .winner-hero__sparkle {
   position: absolute;
   z-index: 1;
-  color: rgba(var(--winner-accent), 0.78);
-  text-shadow: 0 0 12px rgba(var(--winner-accent), 0.28);
+  color: rgba(var(--winner-gold-rgb), 0.82);
+  text-shadow: 0 0 12px rgba(var(--winner-gold-rgb), 0.3);
   animation: winner-sparkle 1.8s ease-in-out infinite;
 }
 
@@ -250,10 +252,10 @@ const sparkles = [
 @keyframes winner-name-glow {
   0%,
   100% {
-    text-shadow: 0 0 0 rgba(var(--winner-accent), 0);
+    text-shadow: 0 0 0 rgba(var(--winner-gold-rgb), 0);
   }
   50% {
-    text-shadow: 0 0 18px rgba(var(--winner-accent), 0.26);
+    text-shadow: 0 0 18px rgba(var(--winner-gold-rgb), 0.24);
   }
 }
 </style>
