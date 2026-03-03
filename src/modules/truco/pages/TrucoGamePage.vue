@@ -6,7 +6,7 @@
       <div class="game-wrapper mx-auto">
         <!-- Cards das equipes -->
         <div class="d-flex flex-column ga-4 mb-6">
-          <TrucoTeamCard v-for="(team, index) in trucoStore.teams" :key="team.id" :team="team" :team-number="index + 1" :max-score="trucoStore.maxScore" :color="index === 0 ? 'primary' : 'error'" @add-point="trucoStore.addPoint(team.id)" @remove-point="trucoStore.removePoint(team.id)"/>
+          <TrucoTeamCard v-for="(team, index) in trucoStore.teams" :key="team.id" :team="team" :team-number="index + 1" :max-score="trucoStore.maxScore" :color="index === 0 ? 'primary' : 'error'" @add-point="trucoStore.addPoint(team.id)" @remove-point="trucoStore.removePoint(team.id)" />
         </div>
       </div>
     </v-container>
@@ -50,16 +50,16 @@
           </v-card>
 
           <div class="d-flex flex-column ga-3">
-            <v-btn color="primary" variant="flat" rounded="lg" size="large" @click="newGameSameTeams"> 
-              <v-icon start icon="mdi-refresh" /> 
-              <span>Novo jogo</span> 
+            <v-btn color="primary" variant="flat" rounded="lg" size="large" @click="newGameSameTeams">
+              <v-icon start icon="mdi-refresh" />
+              <span>Novo jogo</span>
             </v-btn>
-            <v-btn variant="tonal" rounded="lg" size="large" @click="reconfigure"> 
-              <v-icon start icon="mdi-cog" /> 
+            <v-btn variant="tonal" rounded="lg" size="large" @click="reconfigure">
+              <v-icon start icon="mdi-cog" />
               <span>Reconfigurar</span>
             </v-btn>
-            <v-btn variant="text" rounded="lg" @click="goHome"> 
-              <v-icon start icon="mdi-home" /> 
+            <v-btn variant="text" rounded="lg" @click="goHome">
+              <v-icon start icon="mdi-home" />
               <span>Início</span>
             </v-btn>
           </div>
@@ -70,14 +70,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref, watch, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import SetupHeader from "@/shared/components/SetupHeader.vue";
 import TrucoTeamCard from "@/modules/truco/components/TrucoTeamCard.vue";
 import { useTrucoStore } from "@/modules/truco/store/useTrucoStore";
+import { useWakeLock } from "@/shared/composables/useWakeLock";
 
 const router = useRouter();
 const trucoStore = useTrucoStore();
+
+const { request } = useWakeLock();
 
 // --- Saída ---
 const confirmExit = ref(false);
@@ -113,6 +116,10 @@ const goHome = () => {
   trucoStore.clear();
   router.push({ name: "home" });
 };
+
+onMounted(() => {
+  void request();
+});
 </script>
 
 <style scoped>
