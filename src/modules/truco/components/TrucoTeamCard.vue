@@ -7,7 +7,7 @@
           <p class="text-caption text-medium-emphasis mb-0">Equipe {{ teamNumber }}</p>
           <p class="text-subtitle-1 font-weight-bold">{{ trucoStore.teamName(team) }}</p>
         </div>
-        <p class="score-display font-weight-black" :style="{ color: `rgb(var(--v-theme-${color}))` }">
+        <p class="score-display font-weight-black" :class="{ 'score-display--pulse': scorePulseActive }" :style="{ color: `rgb(var(--v-theme-${color}))` }">
           {{ team.score }}<span class="text-caption text-medium-emphasis font-weight-regular"> /{{ maxScore }}</span>
         </p>
       </div>
@@ -37,11 +37,12 @@
 </template>
 
 <script setup lang="ts">
+import { ref, watch } from "vue";
 import { useTrucoStore } from "@/modules/truco/store/useTrucoStore";
 import { getAvatarUrl } from "@/shared/utils/avatar";
 import type { TrucoTeam } from "../types/truco.types";
 
-defineProps<{
+const props = defineProps<{
   team: TrucoTeam;
   teamNumber: number;
   maxScore: number;
@@ -54,11 +55,45 @@ defineEmits<{
 }>();
 
 const trucoStore = useTrucoStore();
+const scorePulseActive = ref(false);
+
+watch(
+  () => props.team.score,
+  () => {
+    scorePulseActive.value = false;
+    requestAnimationFrame(() => {
+      scorePulseActive.value = true;
+      setTimeout(() => {
+        scorePulseActive.value = false;
+      }, 320);
+    });
+  }
+);
 </script>
 
 <style scoped>
 .score-display {
   font-size: 2.5rem;
   line-height: 1;
+  transform-origin: right center;
+}
+
+.score-display--pulse {
+  animation: score-pulse 0.32s ease-out;
+}
+
+@keyframes score-pulse {
+  0% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  45% {
+    transform: scale(1.18);
+    filter: brightness(1.35);
+  }
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
 }
 </style>
