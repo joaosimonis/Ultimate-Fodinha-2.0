@@ -2,7 +2,7 @@
   <v-dialog :model-value="modelValue" persistent max-width="360" @update:model-value="$emit('update:modelValue', $event)">
     <v-card rounded="lg" class="text-center">
       <v-card-text class="pa-6">
-        <WinnerHero class="mb-4" :winner-name="winner?.name ?? ''" tone="secondary" />
+        <WinnerHero :winner-name="winner?.name ?? ''" :winners="winner ? [winner.name] : []" />
         <div v-if="topThree.length > 1" class="mb-6 text-left">
           <p class="text-subtitle-2 font-weight-bold mb-2">Ranking</p>
           <div v-for="(player, index) in topThree" :key="player.id" class="d-flex align-center ga-2 mb-1">

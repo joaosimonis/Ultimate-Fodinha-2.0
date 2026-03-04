@@ -4,7 +4,6 @@
 
     <v-container class="flex-grow-1 py-4">
       <div class="game-wrapper mx-auto">
-        <!-- Cards das equipes -->
         <div class="d-flex flex-column ga-4 mb-6">
           <TrucoTeamCard v-for="(team, index) in trucoStore.teams" :key="team.id" :team="team" :team-number="index + 1" :max-score="trucoStore.maxScore" :color="index === 0 ? 'primary' : 'error'" @add-point="trucoStore.addPoint(team.id)" @remove-point="trucoStore.removePoint(team.id)" />
         </div>
@@ -27,29 +26,28 @@
     <v-dialog v-model="showWinner" persistent max-width="360">
       <v-card rounded="lg" class="text-center">
         <v-card-text class="pa-6">
-          <WinnerHero
-            class="mb-6"
-            :winner-name="trucoStore.winner ? trucoStore.teamName(trucoStore.winner) : ''"
-            tone="primary"
-          />
+          <WinnerHero class="mb-6" :winner-name="trucoStore.winner ? trucoStore.teamName(trucoStore.winner) : ''" :winners="trucoStore.winner ? trucoStore.winner.players.map((p) => p.name) : []" />
 
-          <!-- Placar final -->
-          <v-card variant="tonal" rounded="lg" class="mb-6">
-            <v-card-text class="pa-4">
-              <div v-for="(team, index) in trucoStore.teams" :key="team.id">
-                <div class="d-flex align-center justify-space-between py-2">
-                  <div>
-                    <p class="text-caption text-medium-emphasis">Equipe {{ index + 1 }}</p>
-                    <p class="text-body-1 font-weight-bold">{{ trucoStore.teamName(team) }}</p>
-                  </div>
-                  <p class="text-h4 font-weight-black" :class="trucoStore.winner?.id === team.id ? 'text-primary' : ''">
-                    {{ team.score }}
-                  </p>
-                </div>
-                <v-divider v-if="index < trucoStore.teams.length - 1" />
-              </div>
-            </v-card-text>
-          </v-card>
+          <!-- Scoreboard -->
+          <div class="scoreboard mb-6">
+            <div class="scoreboard__team">
+              <p class="scoreboard__score" :class="['scoreboard__score--team1', trucoStore.winner?.id === teamOne?.id ? 'scoreboard__score--winner' : 'scoreboard__score--loser']">
+                {{ teamOne?.score }}
+              </p>
+              <p class="scoreboard__name">{{ teamOne ? trucoStore.teamName(teamOne) : "" }}</p>
+            </div>
+
+            <div class="scoreboard__divider">
+              <p class="scoreboard__x">×</p>
+            </div>
+
+            <div class="scoreboard__team">
+              <p class="scoreboard__score" :class="['scoreboard__score--team2', trucoStore.winner?.id === teamTwo?.id ? 'scoreboard__score--winner' : 'scoreboard__score--loser']">
+                {{ teamTwo?.score }}
+              </p>
+              <p class="scoreboard__name">{{ teamTwo ? trucoStore.teamName(teamTwo) : "" }}</p>
+            </div>
+          </div>
 
           <div class="d-flex flex-column ga-3">
             <v-btn color="primary" variant="flat" rounded="lg" size="large" @click="newGameSameTeams">
@@ -72,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from "vue";
+import { computed, ref, watch, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import SetupHeader from "@/shared/components/SetupHeader.vue";
 import WinnerHero from "@/shared/components/WinnerHero.vue";
@@ -84,10 +82,12 @@ import { useConfetti } from "@/shared/composables/useConfetti";
 const router = useRouter();
 const trucoStore = useTrucoStore();
 
+const teamOne = computed(() => trucoStore.teams[0] ?? null);
+const teamTwo = computed(() => trucoStore.teams[1] ?? null);
+
 const { fireConfetti } = useConfetti();
 const { request } = useWakeLock();
 
-// --- Saída ---
 const confirmExit = ref(false);
 const exitGame = () => {
   confirmExit.value = false;
@@ -95,10 +95,8 @@ const exitGame = () => {
   router.push({ name: "home" });
 };
 
-// --- Vencedor ---
 const showWinner = ref(Boolean(trucoStore.winner));
 
-// --- Ações pós-jogo ---
 const newGameSameTeams = () => {
   trucoStore.reset();
   showWinner.value = false;
@@ -117,14 +115,14 @@ const goHome = () => {
 };
 
 watch(
-  () => trucoStore.winner, 
+  () => trucoStore.winner,
   (winner) => {
     if (winner) {
-      showWinner.value = true
-      fireConfetti()
+      showWinner.value = true;
+      fireConfetti();
     }
   }
-)
+);
 
 onMounted(() => {
   void request();
@@ -144,5 +142,61 @@ onMounted(() => {
 .winner-dialog__home-btn {
   background: rgba(var(--v-theme-on-surface), 0.03);
   border-color: rgba(var(--v-theme-on-surface), 0.08);
+}
+
+.scoreboard {
+  background: transparent;
+  border: 2px solid rgba(var(--v-theme-on-surface), 0.1);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 8px;
+}
+
+.scoreboard__team {
+  text-align: center;
+  width: 40%;
+}
+
+.scoreboard__score {
+  font-size: 2.8rem;
+  font-weight: 900;
+  line-height: 1;
+  margin-bottom: 4px; 
+}
+
+.scoreboard__score--team1 {
+  color: rgb(var(--v-theme-primary));
+}
+
+.scoreboard__score--team2 {
+  color: rgb(var(--v-theme-error));
+}
+
+.scoreboard__score--winner {
+  text-shadow: 0 0 24px currentColor;
+}
+
+.scoreboard__score--loser {
+  opacity: 0.35;
+}
+
+.scoreboard__name {
+  font-size: 0.75rem;
+  color: rgba(var(--v-theme-on-surface), 0.5);
+  word-break: break-word;
+  line-height: 1.3;
+}
+
+.scoreboard__divider {
+  display: flex;
+  align-items: center;
+}
+
+.scoreboard__x {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: rgba(var(--v-theme-on-surface), 0.2);
 }
 </style>
