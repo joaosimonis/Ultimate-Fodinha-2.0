@@ -104,7 +104,7 @@ const goToPlayers = () => router.push({ name: "players" });
   border: 2px solid transparent;
   transition: all 0.2s ease;
   opacity: 0.6;
-  padding: 4px; 
+  padding: 4px;
 }
 
 .champion-card:active {
