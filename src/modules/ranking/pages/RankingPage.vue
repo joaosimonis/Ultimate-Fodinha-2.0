@@ -14,7 +14,7 @@
       </v-tab>
       <v-tab value="truco-teams">
         <v-icon icon="mdi-account-group" start />
-        <span>Duplas</span>
+        <span>Duplas/Trios</span>
       </v-tab>
     </v-tabs>
 
