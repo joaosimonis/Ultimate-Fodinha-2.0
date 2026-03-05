@@ -64,7 +64,20 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ["**/*.{js,css,html,svg,png,ico,woff,woff2,ttf,eot,mp3,ogg}"],
+        globPatterns: ["**/*.{js,css,html,svg,png,ico,woff,woff2,ttf,eot}"],
+        runtimeCaching: [
+          {
+            urlPattern: /\.(?:mp3|ogg)$/i,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "audio-cache",
+              expiration: {
+                maxEntries: 20,
+                maxAgeSeconds: 60 * 60 * 24 * 30,
+              },
+            },
+          },
+        ],
       },
     }),
   ],
