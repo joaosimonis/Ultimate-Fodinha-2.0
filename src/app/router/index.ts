@@ -8,7 +8,8 @@ import TrucoGamePage from '@/modules/truco/pages/TrucoGamePage.vue'
 import FodinhaSetupPage from "@/modules/fodinha/pages/FodinhaSetupPage.vue";
 import FodinhaGamePage from "@/modules/fodinha/pages/FodinhaGamePage.vue";
 import RankingPage from "@/modules/ranking/pages/RankingPage.vue";
-import PlayersPage from "@/modules/players/PlayersPage.vue";
+import PlayersPage from "@/modules/players/pages/PlayersPage.vue";
+import PlayersProfilePage from "@/modules/players/pages/PlayersProfilePage.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -45,6 +46,7 @@ const router = createRouter({
 
     { path: "/ranking", name: "ranking", component: RankingPage },
     { path: "/players", name: "players", component: PlayersPage },
+    { path: "/players/:id", name: "player-profile", component: PlayersProfilePage },
     { path: "/:pathMatch(.*)*", redirect: "/" },
   ],
 });

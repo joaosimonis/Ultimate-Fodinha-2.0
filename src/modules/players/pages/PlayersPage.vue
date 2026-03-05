@@ -22,12 +22,12 @@
         <div v-else class="players-grid">
           <v-slide-y-transition group>
             <div v-for="player in playersStore.players" :key="player.id" class="player-card-wrapper">
-              <div class="player-card text-center">
+              <div class="player-card text-center" @click="goToProfile(player.id)">
                 <div class="avatar-wrapper">
                   <v-avatar size="72">
                     <v-img :src="getAvatarUrl(player.name)" :alt="player.name" />
                   </v-avatar>
-                  <v-btn icon variant="flat" color="error" size="x-small" class="delete-btn" @click="confirmDelete(player)">
+                  <v-btn icon variant="flat" color="error" size="x-small" class="delete-btn" @click.stop="confirmDelete(player)">
                     <v-icon icon="mdi-close" size="10" />
                   </v-btn>
                 </div>
@@ -89,6 +89,10 @@ const playersStore = usePlayersStore();
 
 // --- Navegação ---
 const goBack = () => router.push({ name: "home" });
+
+const goToProfile = (playerId: string) => {
+  router.push({ name: "player-profile", params: { id: playerId } });
+};
 
 // --- Adicionar ---
 const addDialog = ref(false);
