@@ -4,10 +4,10 @@
 
     <!-- Hero da banda -->
     <div class="music-hero">
-      <v-img src="@/assets/images/dys-logo.png" alt="Did You See" class="music-hero__img" cover />
-      <div class="music-hero__overlay" />
       <div class="music-hero__content">
-        <LottieAnimation :src="SpaceshipAnimation" :size="80" :autoplay="true" :loop="true" class="mb-2" />
+        <div class="music-hero__art">
+          <v-img src="@/assets/images/dys-logo.png" alt="Did You See" class="music-hero__img" contain />
+        </div>
         <p class="text-h4 font-weight-black text-white">Did You See</p>
         <p class="text-caption text-white" style="opacity: 0.7">Indie • Rock • Space Vibes</p>
       </div>
@@ -48,8 +48,6 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router";
 import SetupHeader from "@/shared/components/SetupHeader.vue";
-import LottieAnimation from "@/shared/components/LottieAnimation.vue";
-import SpaceshipAnimation from "@/assets/animation/Spaceship.json";
 import { useMusicStore } from "@/modules/music/store/useMusicStore";
 import { TRACKS } from "@/modules/music/data/music.data";
 
@@ -66,30 +64,33 @@ const goBack = () => router.back();
 
 .music-hero {
   position: relative;
-  height: 260px;
+  height: 340px;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0) 46%),
+    linear-gradient(180deg, #080808 0%, #000000 100%);
+}
+
+.music-hero__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 24px 16px 20px;
+}
+
+.music-hero__art {
+  width: min(50vw, 180px);
+  aspect-ratio: 1 / 1;
+  margin-bottom: 14px;
 }
 
 .music-hero__img {
   width: 100%;
   height: 100%;
-}
-
-.music-hero__overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.75) 100%);
-}
-
-.music-hero__content {
-  position: absolute;
-  bottom: 20px;
-  left: 0;
-  right: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
 }
 
 .track-number {
@@ -104,5 +105,11 @@ const goBack = () => router.back();
 
 .track-card:active {
   transform: scale(0.98);
+}
+
+@media (max-width: 600px) {
+  .music-hero {
+    height: 320px;
+  }
 }
 </style>
