@@ -69,10 +69,7 @@ export const PLAYERS_DATA: Record<string, PlayerProfile> = {
   Grade: {
     name: "Grade",
     title: "Domador de Dragão",
-    lore: [
-      "Grade é conhecido por possuir uma ligação rara e poderosa com as criaturas mais temidas dos céus: os dragões.",
-      "Enquanto muitos guerreiros tentaram enfrentá-los, ele aprendeu a compreendê-los e conquistar sua confiança, tornando-se um verdadeiro domador dessas feras lendárias."
-    ],
+    lore: ["Grade é conhecido por possuir uma ligação rara e poderosa com as criaturas mais temidas dos céus: os dragões.", "Enquanto muitos guerreiros tentaram enfrentá-los, ele aprendeu a compreendê-los e conquistar sua confiança, tornando-se um verdadeiro domador dessas feras lendárias."],
     ultimate: {
       name: "Fúria do Dragão Ancestral",
       description: "Grade invoca seu dragão para sobrevoar o campo de batalha, liberando uma poderosa rajada de fogo que causa dano massivo em área.",
@@ -94,6 +91,18 @@ export const PLAYERS_DATA: Record<string, PlayerProfile> = {
     ultimate: {
       name: "Tempestade de Lâminas",
       description: "Ângela executa uma sequência devastadora de ataques rápidos.",
+    },
+  },
+  Pelotas: {
+    name: "Pelotas",
+    title: "Guardião das Sombras",
+    lore: [
+      "Pelotas é uma figura enigmática que caminha entre luz e escuridão, dominando as sombras como poucos no mundo. Dizem que sua presença é sentida antes mesmo de ser vista, surgindo silenciosamente onde a noite é mais profunda.",
+      "Usando a própria escuridão como arma e proteção, ele manipula sombras para confundir inimigos e desaparecer no campo de batalha. Para aqueles que lutam ao seu lado, ele é um aliado silencioso; para seus inimigos, um pesadelo impossível de escapar.",
+    ],
+    ultimate: {
+      name: "Manto da Noite",
+      description: "Pelotas envolve o campo em sombras profundas, reduzindo a visão dos inimigos enquanto se move livremente entre as trevas atacando múltiplos alvos.",
     },
   },
   Rogus: {
@@ -168,10 +177,10 @@ export const PLAYERS_DATA: Record<string, PlayerProfile> = {
       description: "Uma onda gigantesca atravessa o campo causando dano massivo.",
     },
   },
-  Lilly: {
-    name: "Lilly",
+  Lily: {
+    name: "Lily",
     title: "Arquiteta de Atena",
-    lore: ["Discípula da deusa da sabedoria, Lilly cria estruturas mágicas e fortalezas estratégicas.", "Seu conhecimento transforma o campo de batalha."],
+    lore: ["Discípula da deusa da sabedoria, Lily cria estruturas mágicas e fortalezas estratégicas.", "Seu conhecimento transforma o campo de batalha."],
     ultimate: {
       name: "Fortaleza de Atena",
       description: "Uma cidadela mágica surge protegendo aliados.",
@@ -193,6 +202,18 @@ export const PLAYERS_DATA: Record<string, PlayerProfile> = {
     ultimate: {
       name: "Biblioteca Arcana",
       description: "Runas antigas surgem fortalecendo aliados e enfraquecendo inimigos.",
+    },
+  },
+  Kevin: {
+    name: "Kevin",
+    title: "Capitão da Rocinha",
+    lore: [
+      "Kevin é um líder nato que inspira coragem e união entre seus aliados. Empunhando seu escudo lendário, ele avança sempre à frente da batalha, protegendo os seus e enfrentando qualquer ameaça com determinação inabalável.",
+      "Seu espírito heroico transforma qualquer confronto em um símbolo de resistência e esperança. Onde Kevin luta, seus aliados encontram força para continuar e seus inimigos descobrem que coragem verdadeira não pode ser derrotada.",
+    ],
+    ultimate: {
+      name: "Investida do Capitão",
+      description: "Kevin arremessa seu escudo lendário que ricocheteia entre os inimigos causando dano, retornando em seguida para conceder proteção temporária aos aliados.",
     },
   },
   Knak: {
