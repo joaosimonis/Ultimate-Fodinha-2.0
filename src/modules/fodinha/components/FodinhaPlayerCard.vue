@@ -34,6 +34,7 @@ import { getAvatarUrl } from "@/shared/utils/avatar";
 interface FodinhaPlayerCardProps {
   player: FodinhaPlayer;
   initialLives: number;
+  activePlayersCount: number;
 }
 
 const props = defineProps<FodinhaPlayerCardProps>();
@@ -104,7 +105,7 @@ const getLifeClasses = (life: number) => ({
 
 const handleRemoveLife = (playerId: string) => {
   startDamageFeedback();
-  if (props.player.lives === 1) {
+  if (props.player.lives === 1 && props.activePlayersCount > 2) {
     playRandomDeathAudio();
   }
   emit("remove-life", playerId);

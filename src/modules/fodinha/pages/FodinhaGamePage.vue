@@ -9,6 +9,7 @@
             <FodinhaPlayerCard
               :player="player"
               :initial-lives="fodinhaStore.initialLives"
+              :active-players-count="fodinhaStore.activePlayers.length"
               @add-life="fodinhaStore.addLife"
               @remove-life="fodinhaStore.removeLife"
             />
@@ -48,10 +49,13 @@ import FodinhaWinnerDialog from "@/modules/fodinha/components/FodinhaWinnerDialo
 import { useFodinhaGame } from "@/modules/fodinha/composables/useFodinhaGame";
 import { useWakeLock } from "@/shared/composables/useWakeLock";
 import { useConfetti } from "@/shared/composables/useConfetti";
+import temaDaVitoriaAudio from "@/assets/audios/vitoria/tema-da-vitoria.mp3";
 
 const { fireConfetti } = useConfetti();
 const { request } = useWakeLock();
 const { fodinhaStore, confirmExit, showWinner, topThree, openExitConfirmation, closeExitConfirmation, exitGame, newGameSamePlayers, reconfigure, goHome } = useFodinhaGame();
+const victoryAudio = new Audio(temaDaVitoriaAudio);
+victoryAudio.volume = 1;
 
 watch(
   () => fodinhaStore.winner, 
@@ -59,6 +63,9 @@ watch(
     if (winner) {
       showWinner.value = true
       fireConfetti()
+      void victoryAudio.play().catch(() => {
+        // Ignore playback errors and keep winner flow responsive.
+      });
     }
   }
 )

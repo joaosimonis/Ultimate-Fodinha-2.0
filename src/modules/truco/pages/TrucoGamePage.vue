@@ -78,6 +78,7 @@ import TrucoTeamCard from "@/modules/truco/components/TrucoTeamCard.vue";
 import { useTrucoStore } from "@/modules/truco/store/useTrucoStore";
 import { useWakeLock } from "@/shared/composables/useWakeLock";
 import { useConfetti } from "@/shared/composables/useConfetti";
+import temaDaVitoriaAudio from "@/assets/audios/vitoria/tema-da-vitoria.mp3";
 
 const router = useRouter();
 const trucoStore = useTrucoStore();
@@ -87,6 +88,8 @@ const teamTwo = computed(() => trucoStore.teams[1] ?? null);
 
 const { fireConfetti } = useConfetti();
 const { request } = useWakeLock();
+const victoryAudio = new Audio(temaDaVitoriaAudio);
+victoryAudio.volume = 1;
 
 const confirmExit = ref(false);
 const exitGame = () => {
@@ -120,6 +123,9 @@ watch(
     if (winner) {
       showWinner.value = true;
       fireConfetti();
+      void victoryAudio.play().catch(() => {
+        // Ignore playback errors and keep winner flow responsive.
+      });
     }
   }
 );
