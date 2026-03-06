@@ -72,34 +72,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 import SetupPageHeader from "@/shared/components/SetupHeader.vue";
-import audioMuriloPuto from "@/assets/audios/murilo/audio-murilo-puto.ogg";
-import { useRouter } from "vue-router";
 import { useRankingStore } from "@/modules/ranking/store/useRankingStore";
 import RankingPlayerCard from "@/modules/ranking/components/RankingPlayerCard.vue";
 import RankingTeamCard from "@/modules/ranking/components/RankingTeamCard.vue";
 
-const router = useRouter();
 const rankingStore = useRankingStore();
 
 const activeTab = ref("fodinha");
 const confirmClear = ref(false);
 
-const goBack = () => router.push({ name: "home" });
-
 const clearRanking = () => {
   rankingStore.clearAll();
   confirmClear.value = false;
 };
-
-onMounted(() => {
-  const audio = new Audio(audioMuriloPuto);
-  audio.volume = 1;
-  void audio.play().catch(() => {
-    // Ignore autoplay blocking errors until user interaction.
-  });
-});
 </script>
 
 <style scoped>

@@ -30,9 +30,6 @@
 import { onUnmounted, ref, watch } from "vue";
 import type { FodinhaPlayer } from "@/modules/fodinha/types/fodinha.types";
 import { getAvatarUrl } from "@/shared/utils/avatar";
-import messiPutoAudio1 from "@/assets/audios/messi/messi-puto-1.mp3";
-import messiPutoAudio2 from "@/assets/audios/messi/messi-puto-2.ogg";
-import messiAudio4 from "@/assets/audios/kreutzer/audio-kreutzer-1.ogg";
 
 interface FodinhaPlayerCardProps {
   player: FodinhaPlayer;
@@ -45,11 +42,32 @@ const emit = defineEmits<{
   "remove-life": [playerId: string];
 }>();
 
-const removeLifeAudios = [messiPutoAudio1, messiPutoAudio2, messiAudio4];
+const deathAudios = Object.values(
+  import.meta.glob("/src/assets/audios/morte/*.{mp3,ogg,wav}", {
+    eager: true,
+    import: "default",
+  })
+) as string[];
 const shakeActive = ref(false);
 const breakingLife = ref<number | null>(null);
 let shakeTimeout: ReturnType<typeof setTimeout> | null = null;
 let breakTimeout: ReturnType<typeof setTimeout> | null = null;
+
+const getRandomDeathAudio = () => {
+  if (deathAudios.length === 0) return null;
+  return deathAudios[Math.floor(Math.random() * deathAudios.length)];
+};
+
+const playRandomDeathAudio = () => {
+  const randomAudioSrc = getRandomDeathAudio();
+  if (!randomAudioSrc) return;
+
+  const audio = new Audio(randomAudioSrc);
+  audio.volume = 1;
+  void audio.play().catch(() => {
+    // Ignore playback errors and keep game interaction responsive.
+  });
+};
 
 const clearFeedbackTimeouts = () => {
   if (shakeTimeout) clearTimeout(shakeTimeout);
@@ -86,12 +104,9 @@ const getLifeClasses = (life: number) => ({
 
 const handleRemoveLife = (playerId: string) => {
   startDamageFeedback();
-  const randomAudioSrc = removeLifeAudios[Math.floor(Math.random() * removeLifeAudios.length)];
-  const audio = new Audio(randomAudioSrc);
-  audio.volume = 1;
-  void audio.play().catch(() => {
-    // Ignore playback errors and keep game interaction responsive.
-  });
+  if (props.player.lives === 1) {
+    playRandomDeathAudio();
+  }
   emit("remove-life", playerId);
 };
 
