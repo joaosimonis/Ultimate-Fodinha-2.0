@@ -35,8 +35,8 @@ import { useFodinhaSetup } from "@/modules/fodinha/composables/useFodinhaSetup";
 import { useFodinhaStore } from "@/modules/fodinha/store/useFodinhaStore";
 import ChampionSelect from "@/shared/ChampionSelect.vue";
 import type { RegisteredPlayer } from "@/shared/types/players.types";
-import audioMessi1 from "@/assets/audio-messi-1.mp3";
-import audioMessi2 from "@/assets/audio-messi-2.mp3";
+import audioMessi1 from "@/assets/audios/messi/audio-messi-1.mp3";
+import audioMessi2 from "@/assets/audios/messi/audio-messi-2.mp3";
 
 const router = useRouter();
 const fodinhaStore = useFodinhaStore();

@@ -1,5 +1,5 @@
-import myspaceship from "@/assets/audios/myspaceship.mp3";
-import aliens from "@/assets/audios/aliens.mp3";
+import myspaceship from "@/assets/audios/music/myspaceship.mp3";
+import aliens from "@/assets/audios//music/aliens.mp3";
 import type { Track } from "../types/music.types";
 
 export const TRACKS: Track[] = [

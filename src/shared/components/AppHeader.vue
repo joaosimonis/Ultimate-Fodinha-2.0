@@ -22,7 +22,7 @@
 import { onBeforeUnmount, onMounted } from "vue";
 import { useThemeStore } from "@/app/stores/theme";
 import { useRouter } from "vue-router";
-import appLogo from "@/assets/ultimate-fodinha-logo.svg";
+import appLogo from "@/assets/images/ultimate-fodinha-logo.svg";
 
 const router = useRouter();
 

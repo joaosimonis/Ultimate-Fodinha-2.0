@@ -37,7 +37,7 @@ import { onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import AppHeader from "@/shared/components/AppHeader.vue";
 import AppFooter from "@/shared/components/AppFooter.vue";
-import messiIntroducaoAudio from "@/assets/messi-introducao.ogg";
+import messiIntroducaoAudio from "@/assets/audios/messi/messi-introducao.ogg";
 
 const router = useRouter();
 

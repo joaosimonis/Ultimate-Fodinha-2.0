@@ -74,7 +74,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import SetupPageHeader from "@/shared/components/SetupHeader.vue";
-import audioMuriloPuto from "@/assets/audio-murilo-puto.ogg";
+import audioMuriloPuto from "@/assets/audios/murilo/audio-murilo-puto.ogg";
 import { useRouter } from "vue-router";
 import { useRankingStore } from "@/modules/ranking/store/useRankingStore";
 import RankingPlayerCard from "@/modules/ranking/components/RankingPlayerCard.vue";

@@ -68,11 +68,14 @@ export const PLAYERS_DATA: Record<string, PlayerProfile> = {
   },
   Grade: {
     name: "Grade",
-    title: "Anti-herói Sombrio",
-    lore: ["Grade vive nas sombras e segue apenas seu próprio código. Seu passado é envolto em mistério.", "Ele usa escuridão e estratégia para derrotar seus inimigos antes mesmo que percebam sua presença."],
+    title: "Domador de Dragão",
+    lore: [
+      "Grade é conhecido por possuir uma ligação rara e poderosa com as criaturas mais temidas dos céus: os dragões.",
+      "Enquanto muitos guerreiros tentaram enfrentá-los, ele aprendeu a compreendê-los e conquistar sua confiança, tornando-se um verdadeiro domador dessas feras lendárias."
+    ],
     ultimate: {
-      name: "Eclipse das Sombras",
-      description: "O campo é envolto em escuridão enquanto Grade surge atacando inimigos múltiplas vezes.",
+      name: "Fúria do Dragão Ancestral",
+      description: "Grade invoca seu dragão para sobrevoar o campo de batalha, liberando uma poderosa rajada de fogo que causa dano massivo em área.",
     },
   },
   Murilo: {
