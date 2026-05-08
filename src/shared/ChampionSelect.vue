@@ -1,14 +1,23 @@
 <template>
   <div>
+    <div v-if="playersStore.error" class="text-center py-6">
+      <v-icon icon="mdi-alert-circle-outline" size="48" class="text-error mb-3" />
+      <p class="text-body-2 text-medium-emphasis mb-4">{{ playersStore.error }}</p>
+      <v-btn variant="tonal" rounded="lg" @click="loadPlayers">
+        <v-icon start icon="mdi-refresh" />
+        Tentar novamente
+      </v-btn>
+    </div>
+
     <!-- Estado vazio: nenhum jogador cadastrado -->
-    <div v-if="playersStore.players.length === 0" class="text-center py-6">
+    <div v-else-if="playersStore.hasLoaded && playersStore.players.length === 0" class="text-center py-6">
       <v-icon icon="mdi-account-group-outline" size="48" class="text-medium-emphasis mb-3" />
       <p class="text-body-2 text-medium-emphasis mb-4">Nenhum jogador cadastrado ainda.</p>
       <v-btn variant="tonal" rounded="lg" @click="goToPlayers"> <v-icon start icon="mdi-plus" /> Cadastrar jogadores </v-btn>
     </div>
 
     <!-- Grid de seleção -->
-    <div v-else>
+    <div v-else-if="playersStore.players.length > 0">
       <div class="champion-grid mb-3">
         <div
           v-for="player in availablePlayers"
@@ -40,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { usePlayersStore } from "@/shared/store/usePlayersStore";
 import { getAvatarUrl } from "@/shared/utils/avatar";
@@ -58,6 +67,18 @@ const emit = defineEmits<{
 
 const router = useRouter();
 const playersStore = usePlayersStore();
+
+const loadPlayers = () => {
+  void playersStore.loadPlayers().catch(() => {
+    // Error state is already exposed by the store.
+  });
+};
+
+onMounted(() => {
+  if (!playersStore.hasLoaded && !playersStore.isLoading) {
+    loadPlayers();
+  }
+});
 
 // Filtra jogadores excluídos (ex: já selecionados na outra equipe)
 const availablePlayers = computed(() => playersStore.players);

@@ -37,7 +37,7 @@
                   <v-avatar size="72">
                     <v-img :src="getAvatarUrl(player.name)" :alt="player.name" />
                   </v-avatar>
-                  <v-btn icon variant="flat" color="error" size="x-small" class="delete-btn" @click.stop="confirmDelete(player)">
+                  <v-btn icon variant="flat" color="error" size="x-small" class="delete-btn" :disabled="isDeleting" @click.stop="confirmDelete(player)">
                     <v-icon icon="mdi-close" size="10" />
                   </v-btn>
                 </div>
@@ -50,22 +50,32 @@
     </v-container>
 
     <!-- Dialog: Adicionar jogador -->
-    <v-dialog v-model="addDialog" max-width="320">
+    <v-dialog v-model="addDialog" max-width="420">
       <v-card rounded="lg">
         <v-card-title class="pt-5 px-5">Novo jogador</v-card-title>
         <v-card-text class="px-5 pb-2">
-          <v-text-field v-model="newPlayerName" label="Nome do jogador" variant="outlined" density="comfortable" autofocus :error-messages="addError" @keyup.enter="addPlayer" />
+          <v-alert v-if="addError" type="error" variant="tonal" density="compact" class="mb-4">
+            {{ addError }}
+          </v-alert>
+
+          <v-text-field v-model="newPlayerName" label="Nome do jogador" variant="outlined" density="comfortable" autofocus hide-details="auto" class="mb-3" :maxlength="PLAYER_NAME_MAX_LENGTH" counter />
+          <v-text-field v-model="newPlayerAvatarKey" label="Chave do avatar" variant="outlined" density="comfortable" hide-details="auto" class="mb-3" :maxlength="PLAYER_AVATAR_KEY_MAX_LENGTH" counter />
+          <v-text-field v-model="newPlayerTitle" label="Classe do personagem" variant="outlined" density="comfortable" hide-details="auto" class="mb-3" :maxlength="PLAYER_TITLE_MAX_LENGTH" counter />
+          <v-textarea v-model="newPlayerLore" label="Lore" variant="outlined" density="comfortable" rows="3" auto-grow hide-details="auto" class="mb-3" :maxlength="PLAYER_LORE_MAX_LENGTH" counter />
+          <v-text-field v-model="newPlayerUltimateName" label="Nome da ultimate" variant="outlined" density="comfortable" hide-details="auto" class="mb-3" :maxlength="PLAYER_ULTIMATE_NAME_MAX_LENGTH" counter />
+          <v-textarea v-model="newPlayerUltimateDescription" label="Descrição da ultimate" variant="outlined" density="comfortable" rows="2" auto-grow hide-details="auto" :maxlength="PLAYER_ULTIMATE_DESCRIPTION_MAX_LENGTH" counter />
+
           <!-- Preview do avatar -->
-          <div v-if="newPlayerName.trim()" class="d-flex align-center ga-3 mt-1">
+          <div v-if="avatarPreviewKey" class="d-flex align-center ga-3 mt-4">
             <v-avatar size="40">
-              <v-img :src="getAvatarUrl(newPlayerName)" />
+              <v-img :src="getAvatarUrl(avatarPreviewKey)" />
             </v-avatar>
             <span class="text-caption text-medium-emphasis">Preview do avatar</span>
           </div>
         </v-card-text>
         <v-card-actions class="px-5 pb-5 ga-2">
-          <v-btn variant="tonal" rounded="lg" @click="closeAddDialog">Cancelar</v-btn>
-          <v-btn color="secondary" variant="flat" rounded="lg" :disabled="!newPlayerName.trim()" @click="addPlayer"> Adicionar </v-btn>
+          <v-btn variant="tonal" rounded="lg" :disabled="isCreating" @click="closeAddDialog">Cancelar</v-btn>
+          <v-btn color="secondary" variant="flat" rounded="lg" :disabled="!canCreatePlayer" :loading="isCreating" @click="addPlayer">Adicionar</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -78,8 +88,8 @@
           <span class="font-weight-bold">{{ playerToDelete?.name }}</span> será removido da lista.
         </v-card-text>
         <v-card-actions class="px-5 pb-5 ga-2">
-          <v-btn variant="tonal" rounded="lg" @click="deleteDialog = false">Cancelar</v-btn>
-          <v-btn color="error" variant="flat" rounded="lg" @click="deletePlayer">Remover</v-btn>
+          <v-btn variant="tonal" rounded="lg" :disabled="isDeleting" @click="deleteDialog = false">Cancelar</v-btn>
+          <v-btn color="error" variant="flat" rounded="lg" :loading="isDeleting" @click="deletePlayer">Remover</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -87,8 +97,17 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
+import { getApiErrorMessage } from "@/api/error";
+import {
+  PLAYER_AVATAR_KEY_MAX_LENGTH,
+  PLAYER_LORE_MAX_LENGTH,
+  PLAYER_NAME_MAX_LENGTH,
+  PLAYER_TITLE_MAX_LENGTH,
+  PLAYER_ULTIMATE_DESCRIPTION_MAX_LENGTH,
+  PLAYER_ULTIMATE_NAME_MAX_LENGTH,
+} from "@/modules/players/constants/players.constants";
 import SetupHeader from "@/shared/components/SetupHeader.vue";
 import { usePlayersStore } from "@/shared/store/usePlayersStore";
 import { getAvatarUrl } from "@/shared/utils/avatar";
@@ -115,10 +134,48 @@ const goToProfile = (playerId: string) => {
 // --- Adicionar ---
 const addDialog = ref(false);
 const newPlayerName = ref("");
+const newPlayerAvatarKey = ref("");
+const newPlayerTitle = ref("");
+const newPlayerLore = ref("");
+const newPlayerUltimateName = ref("");
+const newPlayerUltimateDescription = ref("");
 const addError = ref("");
+const isCreating = ref(false);
+
+const normalizeAvatarKey = (value: string) =>
+  value
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, "-");
+
+const avatarPreviewKey = computed(() => newPlayerAvatarKey.value.trim() || newPlayerName.value.trim());
+
+const canCreatePlayer = computed(
+  () =>
+    newPlayerName.value.trim().length > 0 &&
+    newPlayerAvatarKey.value.trim().length > 0 &&
+    newPlayerTitle.value.trim().length > 0 &&
+    newPlayerLore.value.trim().length > 0 &&
+    newPlayerUltimateName.value.trim().length > 0 &&
+    newPlayerUltimateDescription.value.trim().length > 0
+);
+
+watch(newPlayerName, (name, oldName) => {
+  const previousGeneratedKey = normalizeAvatarKey(oldName ?? "");
+  if (!newPlayerAvatarKey.value.trim() || newPlayerAvatarKey.value === previousGeneratedKey) {
+    newPlayerAvatarKey.value = normalizeAvatarKey(name);
+  }
+});
 
 const openAddDialog = () => {
   newPlayerName.value = "";
+  newPlayerAvatarKey.value = "";
+  newPlayerTitle.value = "";
+  newPlayerLore.value = "";
+  newPlayerUltimateName.value = "";
+  newPlayerUltimateDescription.value = "";
   addError.value = "";
   addDialog.value = true;
 };
@@ -127,35 +184,62 @@ const closeAddDialog = () => {
   addDialog.value = false;
 };
 
-const addPlayer = () => {
+const addPlayer = async () => {
   const name = newPlayerName.value.trim();
 
-  if (!name) return;
+  if (!canCreatePlayer.value || isCreating.value) return;
 
   if (playersStore.players.some((p) => p.name.toLowerCase() === name.toLowerCase())) {
     addError.value = "Já existe um jogador com esse nome.";
     return;
   }
 
-  playersStore.addPlayer(name);
-  closeAddDialog();
+  isCreating.value = true;
+  addError.value = "";
+
+  try {
+    await playersStore.createPlayer({
+      name,
+      avatar_key: newPlayerAvatarKey.value.trim(),
+      title: newPlayerTitle.value.trim(),
+      lore: newPlayerLore.value.trim(),
+      ultimate: {
+        name: newPlayerUltimateName.value.trim(),
+        description: newPlayerUltimateDescription.value.trim(),
+      },
+    });
+    closeAddDialog();
+  } catch (err) {
+    addError.value = getApiErrorMessage(err);
+  } finally {
+    isCreating.value = false;
+  }
 };
 
 // --- Remover ---
 const deleteDialog = ref(false);
 const playerToDelete = ref<RegisteredPlayer | null>(null);
+const isDeleting = ref(false);
 
 const confirmDelete = (player: RegisteredPlayer) => {
   playerToDelete.value = player;
   deleteDialog.value = true;
 };
 
-const deletePlayer = () => {
-  if (playerToDelete.value) {
-    playersStore.removePlayer(playerToDelete.value.id);
+const deletePlayer = async () => {
+  if (!playerToDelete.value || isDeleting.value) return;
+
+  isDeleting.value = true;
+
+  try {
+    await playersStore.removePlayer(playerToDelete.value.id);
+  } catch {
+    // Error state is already exposed by the store.
+  } finally {
+    deleteDialog.value = false;
+    playerToDelete.value = null;
+    isDeleting.value = false;
   }
-  deleteDialog.value = false;
-  playerToDelete.value = null;
 };
 </script>
 

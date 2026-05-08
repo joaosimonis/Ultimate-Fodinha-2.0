@@ -1,10 +1,12 @@
 <template>
   <div class="profile-page d-flex flex-column">
-    <SetupHeader :title="profile?.title ?? 'Perfil'" @back="goBack" />
+    <SetupHeader :title="player?.title ?? 'Perfil'" @back="goBack" />
 
-    <div v-if="profile" class="flex-grow-1 overflow-y-auto">
+    <AppLoading v-if="isLoading" message="Carregando perfil..." class="flex-grow-1" />
+
+    <div v-else-if="player" class="flex-grow-1 overflow-y-auto">
       <div class="profile-hero">
-        <v-img :src="getAvatarUrl(player?.name ?? '')" :alt="player?.name" class="profile-hero__img" cover />
+        <v-img :src="getAvatarUrl(player.avatar_key || player.name)" :alt="player.name" class="profile-hero__img" cover />
         <div class="profile-hero__overlay" />
         <div class="profile-hero__glow" />
         <div class="profile-hero__info">
@@ -12,16 +14,16 @@
             <v-icon icon="mdi-star" size="14" />
             Classe
           </span>
-          <h1 class="profile-hero__name">{{ profile.title }}</h1>
+          <h1 class="profile-hero__name">{{ player.title }}</h1>
           <p class="profile-hero__title">
-            {{ player?.name }}
+            {{ player.name }}
           </p>
         </div>
       </div>
 
       <v-container class="profile-content py-5">
         <div class="profile-lore mb-5">
-          <p v-for="(paragraph, i) in profile.lore" :key="i" class="profile-lore__paragraph">
+          <p v-for="(paragraph, i) in loreParagraphs" :key="i" class="profile-lore__paragraph">
             {{ paragraph }}
           </p>
         </div>
@@ -34,38 +36,63 @@
               <v-icon icon="mdi-lightning-bolt" size="16" />
               <span>Ultimate</span>
             </div>
-            <p class="ultimate-card__name mb-2">{{ profile.ultimate.name }}</p>
-            <p class="ultimate-card__description">{{ profile.ultimate.description }}</p>
+            <p class="ultimate-card__name mb-2">{{ player.ultimate.name }}</p>
+            <p class="ultimate-card__description">{{ player.ultimate.description }}</p>
           </v-card-text>
         </v-card>
       </v-container>
     </div>
 
-    <!-- Jogador não encontrado -->
-    <div v-else class="d-flex flex-column align-center justify-center flex-grow-1">
-      <v-icon icon="mdi-account-question" size="64" class="text-medium-emphasis mb-3" />
-      <p class="text-medium-emphasis">Jogador não encontrado</p>
-    </div>
+    <AppErrorState v-else class="flex-grow-1" :message="errorMessage" icon="mdi-account-question" action-label="Ir para início" @action="goHome" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import { getApiErrorMessage } from "@/api/error";
+import { playersApi } from "@/modules/players/api";
+import type { PlayerResponse } from "@/modules/players/types/players.types";
+import AppErrorState from "@/shared/components/AppErrorState.vue";
+import AppLoading from "@/shared/components/AppLoading.vue";
 import SetupHeader from "@/shared/components/SetupHeader.vue";
-import { usePlayersStore } from "@/shared/store/usePlayersStore";
 import { getAvatarUrl } from "@/shared/utils/avatar";
-import { PLAYERS_DATA } from "@/modules/players/data/players.data";
 
 const router = useRouter();
 const route = useRoute();
-const playersStore = usePlayersStore();
 
-const player = computed(() => playersStore.players.find((p) => p.id === route.params.id));
+const player = ref<PlayerResponse | null>(null);
+const isLoading = ref(false);
+const error = ref<string | null>(null);
 
-const profile = computed(() => (player.value ? (PLAYERS_DATA[player.value.name] ?? null) : null));
+const loreParagraphs = computed(() => player.value?.lore.split("\n\n").filter(Boolean) ?? []);
+const errorMessage = computed(() => error.value ?? "Não foi possível carregar este jogador.");
+
+const loadPlayer = async () => {
+  const playerId = String(route.params.id ?? "");
+  if (!playerId) {
+    error.value = "Jogador não encontrado";
+    return;
+  }
+
+  isLoading.value = true;
+  error.value = null;
+
+  try {
+    player.value = await playersApi.getById(playerId);
+  } catch (err) {
+    error.value = getApiErrorMessage(err);
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+onMounted(() => {
+  void loadPlayer();
+});
 
 const goBack = () => router.back();
+const goHome = () => router.push({ name: "home" });
 </script>
 
 <style scoped>
