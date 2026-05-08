@@ -15,6 +15,7 @@
   "dependencies": {
     "@fontsource/roboto": "^5.2.9",
     "@mdi/font": "7.4.47",
+    "axios": "^1.16.0",
     "canvas-confetti": "^1.9.4",
     "pinia": "^3.0.4",
     "pinia-plugin-persistedstate": "^4.7.1",
