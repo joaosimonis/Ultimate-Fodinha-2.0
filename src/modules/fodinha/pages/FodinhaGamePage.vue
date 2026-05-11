@@ -33,6 +33,9 @@
       v-model="showWinner"
       :winner="fodinhaStore.winner ?? null"
       :top-three="topThree"
+      :finish-error="finishError"
+      :is-finishing="isFinishing"
+      :is-starting-rematch="isStartingRematch"
       @new-game="newGameSamePlayers"
       @reconfigure="reconfigure"
       @go-home="goHome"
@@ -53,7 +56,7 @@ import temaDaVitoriaAudio from "@/assets/audios/vitoria/tema-da-vitoria.mp3";
 
 const { fireConfetti } = useConfetti();
 const { request } = useWakeLock();
-const { fodinhaStore, confirmExit, showWinner, topThree, openExitConfirmation, closeExitConfirmation, exitGame, newGameSamePlayers, reconfigure, goHome } = useFodinhaGame();
+const { fodinhaStore, confirmExit, showWinner, topThree, isFinishing, isStartingRematch, finishError, openExitConfirmation, closeExitConfirmation, exitGame, newGameSamePlayers, reconfigure, goHome } = useFodinhaGame();
 const victoryAudio = new Audio(temaDaVitoriaAudio);
 victoryAudio.volume = 1;
 

@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import { useAttrs } from "vue";
+import { getCurrentInstance } from "vue";
 import { useRouter } from "vue-router";
 
 interface SetupPageHeaderProps {
@@ -31,12 +31,12 @@ const props = withDefaults(defineProps<SetupPageHeaderProps>(), {
 const emit = defineEmits<{
   back: [];
 }>();
-const attrs = useAttrs();
+const instance = getCurrentInstance();
 
 const router = useRouter();
 
 const goBack = () => {
-  if ("onBack" in attrs) {
+  if (instance?.vnode.props?.onBack) {
     emit("back");
     return;
   }
