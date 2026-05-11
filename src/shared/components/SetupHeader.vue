@@ -48,7 +48,7 @@ const goBack = () => {
 <style scoped>
 .header-content {
   display: grid;
-  grid-template-columns: 56px 1fr 56px;
+  grid-template-columns: 56px minmax(0, 1fr) minmax(56px, auto);
   align-items: center;
 }
 
@@ -61,5 +61,6 @@ const goBack = () => {
 .header-actions {
   display: flex;
   justify-content: flex-end;
+  min-width: 56px;
 }
 </style>

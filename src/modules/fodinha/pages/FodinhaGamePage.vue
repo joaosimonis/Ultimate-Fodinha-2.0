@@ -1,15 +1,15 @@
 <template>
   <div class="game-page d-flex flex-column">
-    <SetupHeader title="Fodinha" title-icon="mdi-cards-spade" @back="openExitConfirmation" />
+    <SetupHeader title="Fodinha" title-icon="mdi-cards-spade" @back="openExitConfirmation">
+      <template #actions>
+        <v-chip v-if="fodinhaStore.roomCode" color="secondary" variant="tonal" size="small" prepend-icon="mdi-pound" rounded="lg">
+          {{ fodinhaStore.roomCode }}
+        </v-chip>
+      </template>
+    </SetupHeader>
 
     <v-container class="flex-grow-1 py-4">
       <div class="game-wrapper mx-auto">
-        <div v-if="fodinhaStore.roomCode" class="d-flex justify-end mb-4">
-          <v-chip color="secondary" variant="tonal" prepend-icon="mdi-pound" rounded="lg">
-            {{ fodinhaStore.roomCode }}
-          </v-chip>
-        </div>
-
         <v-slide-y-transition group>
           <div v-for="player in fodinhaStore.players" :key="player.id" class="mb-3">
             <FodinhaPlayerCard
