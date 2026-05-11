@@ -11,6 +11,7 @@ import RankingPage from "@/modules/ranking/pages/RankingPage.vue";
 import PlayersPage from "@/modules/players/pages/PlayersPage.vue";
 import PlayersProfilePage from "@/modules/players/pages/PlayersProfilePage.vue";
 import MusicPage from "@/modules/music/pages/MusicPage.vue";
+import RoomsPage from "@/modules/rooms/pages/RoomsPage.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -46,6 +47,7 @@ const router = createRouter({
     },
 
     { path: "/ranking", name: "ranking", component: RankingPage },
+    { path: "/rooms", name: "rooms", component: RoomsPage },
 
     { path: "/players", name: "players", component: PlayersPage },
     { path: "/players/:id", name: "player-profile", component: PlayersProfilePage },

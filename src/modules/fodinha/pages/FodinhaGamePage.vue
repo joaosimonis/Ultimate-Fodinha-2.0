@@ -4,6 +4,12 @@
 
     <v-container class="flex-grow-1 py-4">
       <div class="game-wrapper mx-auto">
+        <div v-if="fodinhaStore.roomCode" class="d-flex justify-end mb-4">
+          <v-chip color="secondary" variant="tonal" prepend-icon="mdi-pound" rounded="lg">
+            {{ fodinhaStore.roomCode }}
+          </v-chip>
+        </div>
+
         <v-slide-y-transition group>
           <div v-for="player in fodinhaStore.players" :key="player.id" class="mb-3">
             <FodinhaPlayerCard
@@ -21,7 +27,7 @@
     <v-dialog v-model="confirmExit" max-width="320">
       <v-card rounded="lg">
         <v-card-title class="pt-5 px-5">Sair da partida?</v-card-title>
-        <v-card-text class="px-5">O progresso será perdido.</v-card-text>
+        <v-card-text class="px-5">Você poderá voltar enquanto a partida estiver salva neste dispositivo.</v-card-text>
         <v-card-actions class="px-5 pb-5 ga-2">
           <v-btn variant="tonal" rounded="lg" @click="closeExitConfirmation">Cancelar</v-btn>
           <v-btn color="error" variant="flat" rounded="lg" @click="exitGame">Sair</v-btn>

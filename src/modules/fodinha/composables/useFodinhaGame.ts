@@ -76,7 +76,6 @@ export function useFodinhaGame() {
 
   const exitGame = () => {
     confirmExit.value = false;
-    fodinhaStore.clear();
     router.push({ name: "home" });
   };
 

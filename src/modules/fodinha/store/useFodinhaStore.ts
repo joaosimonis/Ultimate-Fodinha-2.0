@@ -70,6 +70,18 @@ export const useFodinhaStore = defineStore(
       eliminationCounter.value = 0;
     };
 
+    const syncLives = (livesByPlayerId: Record<string, number>) => {
+      players.value = players.value.map((player) => {
+        const lives = livesByPlayerId[player.id] ?? player.lives;
+
+        return {
+          ...player,
+          lives,
+          isEliminated: lives <= 0,
+        };
+      });
+    };
+
     const clear = () => {
       players.value = [];
       initialLives.value = FODINHA_DEFAULT_LIVES;
@@ -93,6 +105,7 @@ export const useFodinhaStore = defineStore(
       removeLife,
       addLife,
       reset,
+      syncLives,
       clear,
     };
   },

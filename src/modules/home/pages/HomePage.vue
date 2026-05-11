@@ -14,6 +14,10 @@
             <v-icon start icon="mdi-cards-spade" /> 
             <span>Fodinha</span>
           </v-btn>
+          <v-btn block class="text-white" color="deep-purple" rounded="lg" size="x-large" @click="goToRooms">
+            <v-icon start icon="mdi-lan-connect" />
+            <span>Partidas em andamento</span>
+          </v-btn>
           <v-btn block class="text-white" color="amber-darken-1" rounded="lg" size="x-large" @click="goToRanking">
             <v-icon start icon="mdi-trophy" />
             <span>Ranking</span>
@@ -28,6 +32,7 @@
         </div>
       </div>
     </v-container>
+
     <AppFooter />
   </div>
 </template>
@@ -43,6 +48,7 @@ const router = useRouter();
 
 const goToTruco = () => router.push({ name: "truco-setup" });
 const goToFodinha = () => router.push({ name: "fodinha-setup" });
+const goToRooms = () => router.push({ name: "rooms" });
 const goToRanking = () => router.push({ name: "ranking" });
 const goToPlayers = () => router.push({ name: "players" });
 
