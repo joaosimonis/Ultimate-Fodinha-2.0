@@ -34,7 +34,7 @@ import { FODINHA_MIN_PLAYERS } from "@/modules/fodinha/constants/fodinha.constan
 import { useFodinhaSetup } from "@/modules/fodinha/composables/useFodinhaSetup";
 import { useFodinhaStore } from "@/modules/fodinha/store/useFodinhaStore";
 import ChampionSelect from "@/shared/ChampionSelect.vue";
-import type { RegisteredPlayer } from "@/shared/types/players.types";
+import type { RegisteredPlayer } from "@/modules/players/types/players.types";
 
 const router = useRouter();
 const fodinhaStore = useFodinhaStore();

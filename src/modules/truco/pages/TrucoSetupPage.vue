@@ -72,7 +72,7 @@ import ChampionSelect from "@/shared/ChampionSelect.vue";
 import { useTrucoStore } from "@/modules/truco/store/useTrucoStore";
 import { TRUCO_MODES, TRUCO_MAX_SCORE_OPTIONS, TRUCO_MAX_SCORE_DEFAULT, TRUCO_PLAYERS_PER_MODE } from "@/modules/truco/constants/truco.constants";
 import type { TrucoMode } from "../types/truco.types";
-import type { RegisteredPlayer } from "@/shared/types/players.types";
+import type { RegisteredPlayer } from "@/modules/players/types/players.types";
 
 const router = useRouter();
 const trucoStore = useTrucoStore();

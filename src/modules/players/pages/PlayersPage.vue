@@ -35,7 +35,7 @@
               <div class="player-card text-center" @click="goToProfile(player.id)">
                 <div class="avatar-wrapper">
                   <v-avatar size="72">
-                    <v-img :src="getAvatarUrl(player.name)" :alt="player.name" />
+                    <v-img :src="getAvatarUrl(player.avatarKey)" :alt="player.name" />
                   </v-avatar>
                   <v-btn icon variant="flat" color="error" size="x-small" class="delete-btn" :disabled="isDeleting" @click.stop="confirmDelete(player)">
                     <v-icon icon="mdi-close" size="10" />
@@ -111,7 +111,7 @@ import {
 import SetupHeader from "@/shared/components/SetupHeader.vue";
 import { usePlayersStore } from "@/shared/store/usePlayersStore";
 import { getAvatarUrl } from "@/shared/utils/avatar";
-import type { RegisteredPlayer } from "@/shared/types/players.types";
+import type { RegisteredPlayer } from "@/modules/players/types/players.types";
 
 const router = useRouter();
 const playersStore = usePlayersStore();

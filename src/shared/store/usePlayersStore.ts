@@ -3,11 +3,13 @@ import { ref } from "vue";
 import { getApiErrorMessage } from "@/api/error";
 import { playersApi } from "@/modules/players/api";
 import type { CreatePlayerRequest, PlayerResponse } from "@/modules/players/types/players.types";
-import type { RegisteredPlayer } from "@/shared/types/players.types";
+import type { RegisteredPlayer } from "@/modules/players/types/players.types";
 
 const toRegisteredPlayer = (player: PlayerResponse): RegisteredPlayer => ({
   id: player.id,
   name: player.name,
+  avatarKey: player.avatar_key,
+  title: player.title,
 });
 
 export const usePlayersStore = defineStore("players", () => {

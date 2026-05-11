@@ -20,3 +20,10 @@ export interface CreatePlayerRequest {
   lore: string;
   ultimate: PlayerUltimate;
 }
+
+export interface RegisteredPlayer {
+  id: string;
+  name: string;
+  avatarKey: string;
+  title: string;
+}
