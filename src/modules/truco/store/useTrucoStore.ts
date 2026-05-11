@@ -1,15 +1,18 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import type { TrucoTeam, TrucoSetupPayload, TrucoMatchHistory, TrucoMode } from "../types/truco.types";
-import { useRankingStore } from "@/modules/ranking/store/useRankingStore";
+import { TRUCO_MAX_SCORE_DEFAULT } from "@/modules/truco/constants/truco.constants";
 
 export const useTrucoStore = defineStore(
   "truco",
   () => {
     const teams = ref<TrucoTeam[]>([]);
-    const maxScore = ref(24);
+    const maxScore = ref(TRUCO_MAX_SCORE_DEFAULT);
     const mode = ref<TrucoMode>("dupla");
     const history = ref<TrucoMatchHistory[]>([]);
+    const matchId = ref<string | null>(null);
+    const roomCode = ref<string | null>(null);
+    const hostToken = ref<string | null>(null);
 
     const hasGame = computed(() => teams.value.length > 0);
     const winner = computed(() => teams.value.find((t) => t.score >= maxScore.value) ?? null);
@@ -17,6 +20,9 @@ export const useTrucoStore = defineStore(
     const teamName = (team: TrucoTeam): string => team.name?.trim() || team.players.map((p) => p.name).join(" + ");
 
     const setup = (payload: TrucoSetupPayload) => {
+      matchId.value = payload.matchId;
+      roomCode.value = payload.roomCode;
+      hostToken.value = payload.hostToken;
       maxScore.value = payload.maxScore;
       mode.value = payload.mode;
       history.value = [];
@@ -41,15 +47,6 @@ export const useTrucoStore = defineStore(
         timestamp: Date.now(),
       });
 
-      // Registra no ranking quando vencer
-      if (team.score >= maxScore.value) {
-        const rankingStore = useRankingStore();
-        const winnerIndex = teams.value.findIndex((t) => t.id === teamId);
-        rankingStore.registerTrucoResult(
-          teams.value.map((t) => ({ players: t.players })),
-          winnerIndex
-        );
-      }
     };
 
     const removePoint = (teamId: string) => {
@@ -63,11 +60,21 @@ export const useTrucoStore = defineStore(
       history.value = [];
     };
 
+    const syncScores = (scoresByTeamName: Record<string, number>) => {
+      teams.value = teams.value.map((team) => ({
+        ...team,
+        score: scoresByTeamName[teamName(team)] ?? team.score,
+      }));
+    };
+
     const clear = () => {
       teams.value = [];
-      maxScore.value = 24;
+      maxScore.value = TRUCO_MAX_SCORE_DEFAULT;
       mode.value = "dupla";
       history.value = [];
+      matchId.value = null;
+      roomCode.value = null;
+      hostToken.value = null;
     };
 
     return {
@@ -75,6 +82,9 @@ export const useTrucoStore = defineStore(
       maxScore,
       mode,
       history,
+      matchId,
+      roomCode,
+      hostToken,
       hasGame,
       winner,
       teamName,
@@ -82,13 +92,14 @@ export const useTrucoStore = defineStore(
       addPoint,
       removePoint,
       reset,
+      syncScores,
       clear,
     };
   },
   {
     persist: {
       key: "truco",
-      pick: ["teams", "maxScore", "mode", "history"],
+      pick: ["teams", "maxScore", "mode", "history", "matchId", "roomCode", "hostToken"],
     },
   }
 );
