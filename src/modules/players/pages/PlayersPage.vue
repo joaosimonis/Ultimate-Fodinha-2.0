@@ -35,7 +35,7 @@
               <div class="player-card text-center" @click="goToProfile(player.id)">
                 <div class="avatar-wrapper">
                   <v-avatar size="72">
-                    <v-img :src="getAvatarUrl(player.avatarKey)" :alt="player.name" />
+                    <v-img :src="getPlayerAvatarUrl(player.avatarKey)" :alt="player.name" />
                   </v-avatar>
                   <v-btn icon variant="flat" color="error" size="x-small" class="delete-btn" :disabled="isDeleting" @click.stop="confirmDelete(player)">
                     <v-icon icon="mdi-close" size="10" />
@@ -68,7 +68,7 @@
           <!-- Preview do avatar -->
           <div v-if="avatarPreviewKey" class="d-flex align-center ga-3 mt-4">
             <v-avatar size="40">
-              <v-img :src="getAvatarUrl(avatarPreviewKey)" />
+              <v-img :src="getPlayerAvatarUrl(avatarPreviewKey)" />
             </v-avatar>
             <span class="text-caption text-medium-emphasis">Preview do avatar</span>
           </div>
@@ -110,7 +110,7 @@ import {
 } from "@/modules/players/constants/players.constants";
 import SetupHeader from "@/shared/components/SetupHeader.vue";
 import { usePlayersStore } from "@/shared/store/usePlayersStore";
-import { getAvatarUrl } from "@/shared/utils/avatar";
+import { getPlayerAvatarUrl } from "@/shared/utils/avatar";
 import type { RegisteredPlayer } from "@/modules/players/types/players.types";
 
 const router = useRouter();

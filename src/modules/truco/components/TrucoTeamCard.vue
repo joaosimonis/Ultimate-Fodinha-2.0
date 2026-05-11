@@ -16,7 +16,7 @@
       <div class="d-flex ga-2 mb-4">
         <div v-for="player in team.players" :key="player.id" class="d-flex align-center ga-1">
           <v-avatar size="32">
-            <v-img :src="getAvatarUrl(player.name)" :alt="player.name" />
+            <v-img :src="getPlayerAvatarUrl(player.name)" :alt="player.name" />
           </v-avatar>
           <span class="text-caption">{{ player.name }}</span>
         </div>
@@ -39,7 +39,7 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { useTrucoStore } from "@/modules/truco/store/useTrucoStore";
-import { getAvatarUrl } from "@/shared/utils/avatar";
+import { getPlayerAvatarUrl } from "@/shared/utils/avatar";
 import type { TrucoTeam } from "../types/truco.types";
 
 const props = defineProps<{

@@ -12,7 +12,7 @@
 
         <!-- Avatar -->
         <v-avatar size="48">
-          <v-img :src="getAvatarUrl(stats.playerName)" :alt="stats.playerName" />
+          <v-img :src="getPlayerAvatarUrl(stats.playerName)" :alt="stats.playerName" />
         </v-avatar>
 
         <!-- Nome + stats -->
@@ -37,7 +37,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { getAvatarUrl } from "@/shared/utils/avatar";
+import { getPlayerAvatarUrl } from "@/shared/utils/avatar";
 import type { PlayerStats } from "../types/ranking.types";
 
 const props = defineProps<{

@@ -31,7 +31,7 @@
         >
           <div class="champion-avatar-wrapper">
             <v-avatar size="64">
-              <v-img :src="getAvatarUrl(player.avatarKey)" :alt="player.name" />
+              <v-img :src="getPlayerAvatarUrl(player.avatarKey)" :alt="player.name" />
             </v-avatar>
             <div v-if="isSelected(player.id)" class="champion-check">
               <v-icon icon="mdi-check" size="12" color="white" />
@@ -52,7 +52,7 @@
 import { computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { usePlayersStore } from "@/shared/store/usePlayersStore";
-import { getAvatarUrl } from "@/shared/utils/avatar";
+import { getPlayerAvatarUrl } from "@/shared/utils/avatar";
 import type { RegisteredPlayer } from "@/modules/players/types/players.types";
 
 const props = defineProps<{

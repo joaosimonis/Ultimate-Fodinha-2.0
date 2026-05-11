@@ -6,7 +6,7 @@
 
     <div v-else-if="player" class="flex-grow-1 overflow-y-auto">
       <div class="profile-hero">
-        <v-img :src="getAvatarUrl(player.avatar_key || player.name)" :alt="player.name" class="profile-hero__img" cover />
+        <v-img :src="getPlayerAvatarUrl(player.avatar_key || player.name)" :alt="player.name" class="profile-hero__img" cover />
         <div class="profile-hero__overlay" />
         <div class="profile-hero__glow" />
         <div class="profile-hero__info">
@@ -56,7 +56,7 @@ import type { PlayerResponse } from "@/modules/players/types/players.types";
 import AppErrorState from "@/shared/components/AppErrorState.vue";
 import AppLoading from "@/shared/components/AppLoading.vue";
 import SetupHeader from "@/shared/components/SetupHeader.vue";
-import { getAvatarUrl } from "@/shared/utils/avatar";
+import { getPlayerAvatarUrl } from "@/shared/utils/avatar";
 
 const router = useRouter();
 const route = useRoute();

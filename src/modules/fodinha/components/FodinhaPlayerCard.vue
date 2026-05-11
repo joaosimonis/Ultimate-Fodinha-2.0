@@ -3,7 +3,7 @@
     <v-card-text class="pa-4">
       <div class="d-flex align-center justify-space-between">
         <v-avatar size="48" class="mr-3 flex-shrink-0">
-          <v-img :src="getAvatarUrl(player.name)" :alt="player.name" />
+          <v-img :src="getPlayerAvatarUrl(player.name)" :alt="player.name" />
         </v-avatar>
         <div class="flex-grow-1 mr-3">
           <p class="text-subtitle-1 font-weight-bold mb-1" :class="{ 'text-medium-emphasis': player.isEliminated }">
@@ -29,7 +29,7 @@
 <script setup lang="ts">
 import { onUnmounted, ref, watch } from "vue";
 import type { FodinhaPlayer } from "@/modules/fodinha/types/fodinha.types";
-import { getAvatarUrl } from "@/shared/utils/avatar";
+import { getPlayerAvatarUrl } from "@/shared/utils/avatar";
 
 interface FodinhaPlayerCardProps {
   player: FodinhaPlayer;

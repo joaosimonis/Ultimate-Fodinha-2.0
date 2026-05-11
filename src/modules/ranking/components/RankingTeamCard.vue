@@ -13,7 +13,7 @@
         <!-- Avatares da dupla/trio -->
         <div class="d-flex">
           <v-avatar v-for="(name, index) in stats.playerNames" :key="name" size="36" :style="{ marginLeft: index > 0 ? '-10px' : '0', zIndex: stats.playerNames.length - index }">
-            <v-img :src="getAvatarUrl(name)" :alt="name" />
+            <v-img :src="getPlayerAvatarUrl(name)" :alt="name" />
           </v-avatar>
         </div>
 
@@ -39,7 +39,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { getAvatarUrl } from "@/shared/utils/avatar";
+import { getPlayerAvatarUrl } from "@/shared/utils/avatar";
 import type { TeamStats } from "../types/ranking.types";
 
 const props = defineProps<{
