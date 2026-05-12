@@ -8,5 +8,4 @@
 </template>
 
 <script lang="ts" setup>
-  import MiniPlayer from './modules/music/components/MiniPlayer.vue';
 </script>

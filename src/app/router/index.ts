@@ -10,7 +10,6 @@ import FodinhaGamePage from "@/modules/fodinha/pages/FodinhaGamePage.vue";
 import RankingPage from "@/modules/ranking/pages/RankingPage.vue";
 import PlayersPage from "@/modules/players/pages/PlayersPage.vue";
 import PlayersProfilePage from "@/modules/players/pages/PlayersProfilePage.vue";
-import MusicPage from "@/modules/music/pages/MusicPage.vue";
 import RoomsPage from "@/modules/rooms/pages/RoomsPage.vue";
 
 const router = createRouter({
@@ -51,8 +50,6 @@ const router = createRouter({
 
     { path: "/players", name: "players", component: PlayersPage },
     { path: "/players/:id", name: "player-profile", component: PlayersProfilePage },
-
-    { path: "/music", name: "music", component: MusicPage },
 
     { path: "/:pathMatch(.*)*", redirect: "/" },
   ],
