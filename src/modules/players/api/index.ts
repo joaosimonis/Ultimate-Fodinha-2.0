@@ -1,5 +1,6 @@
 import { api } from "@/api/http";
 import type { ApiDataResponse, ApiMessageResponse } from "@/api/types/api.types";
+import { getAdminAuthHeaders } from "@/modules/auth/helpers/adminAuthHeaders";
 import type { CreatePlayerRequest, PlayerResponse } from "@/modules/players/types/players.types";
 import { routes } from "@/modules/players/api/routes";
 
@@ -15,11 +16,15 @@ export const playersApi = {
   },
 
   async create(payload: CreatePlayerRequest): Promise<PlayerResponse> {
-    const response = await api.post<ApiDataResponse<PlayerResponse>>(routes.create, payload);
+    const response = await api.post<ApiDataResponse<PlayerResponse>>(routes.create, payload, {
+      headers: getAdminAuthHeaders(),
+    });
     return response.data;
   },
 
   async remove(id: string): Promise<ApiMessageResponse> {
-    return api.delete<ApiMessageResponse>(routes.remove(id));
+    return api.delete<ApiMessageResponse>(routes.remove(id), {
+      headers: getAdminAuthHeaders(),
+    });
   },
 };
