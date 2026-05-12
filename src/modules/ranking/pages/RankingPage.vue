@@ -2,7 +2,7 @@
   <div class="setup-page d-flex flex-column">
     <SetupPageHeader title="Ranking" title-icon="mdi-trophy" />
 
-    <v-tabs v-model="activeTab" grow color="primary" class="mb-2">
+    <v-tabs v-model="activeTab" grow color="primary" height="48" class="ranking-tabs mb-2">
       <v-tab value="fodinha">
         <v-icon icon="mdi-cards-spade" start />
         <span>Fodinha</span>
@@ -111,6 +111,23 @@ onMounted(() => {
 .ranking-wrapper {
   max-width: 480px;
   width: 100%;
+}
+
+.ranking-tabs {
+  flex: 0 0 auto;
+}
+
+.ranking-tabs :deep(.v-slide-group__container),
+.ranking-tabs :deep(.v-slide-group__content),
+.ranking-tabs :deep(.v-tab) {
+  height: 48px;
+  max-height: 48px;
+}
+
+.ranking-tabs :deep(.v-tab) {
+  min-width: 0;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .empty-state {
