@@ -1,6 +1,7 @@
 <template>
   <div class="home-page d-flex flex-column">
     <AppHeader />
+
     <v-container class="content flex-grow-1 d-flex align-center justify-center">
       <div class="home-wrapper text-center">
         <h1 class="text-h4 font-weight-bold mb-2">Ultimate Fodinha 2.0</h1>
@@ -23,8 +24,8 @@
             <span>Ranking</span>
           </v-btn>
           <v-btn block class="text-white" color="teal-darken-2" rounded="lg" size="x-large" @click="goToPlayers">
-            <v-icon start icon="mdi-account-plus" />
-            <span>Adicionar jogadores</span>
+            <v-icon start icon="mdi-account-group" />
+            <span>Personagens</span>
           </v-btn>
         </div>
         <div class="mt-8">

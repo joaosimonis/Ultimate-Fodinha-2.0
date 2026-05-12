@@ -11,6 +11,8 @@ import RankingPage from "@/modules/ranking/pages/RankingPage.vue";
 import PlayersPage from "@/modules/players/pages/PlayersPage.vue";
 import PlayersProfilePage from "@/modules/players/pages/PlayersProfilePage.vue";
 import RoomsPage from "@/modules/rooms/pages/RoomsPage.vue";
+import AdminPlayersPage from "@/modules/auth/pages/AdminPlayersPage.vue";
+import { adminAuthStorage } from "@/modules/auth/storage/adminAuthStorage";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -50,6 +52,17 @@ const router = createRouter({
 
     { path: "/players", name: "players", component: PlayersPage },
     { path: "/players/:id", name: "player-profile", component: PlayersProfilePage },
+
+    {
+      path: "/admin/players",
+      name: "admin-players",
+      component: AdminPlayersPage,
+      beforeEnter: () => {
+        if (!adminAuthStorage.hasToken()) {
+          return { name: "home" };
+        }
+      },
+    },
 
     { path: "/:pathMatch(.*)*", redirect: "/" },
   ],
