@@ -4,20 +4,7 @@
 
     <v-container class="flex-grow-1 py-4">
       <div class="game-wrapper mx-auto">
-        <div v-if="trucoStore.roomCode" class="room-status mb-4">
-          <div class="room-status__main">
-            <span class="room-status__code">#{{ trucoStore.roomCode }}</span>
-            <span class="room-status__role">
-              <v-icon :icon="isHost ? 'mdi-crown' : 'mdi-eye'" size="16" />
-              {{ isHost ? "Host" : "Assistindo" }}
-            </span>
-          </div>
-
-          <div class="room-status__online" :class="{ 'room-status__online--connected': roomSocket.status.value === 'connected' }">
-            <v-icon icon="mdi-broadcast" size="16" />
-            <span>{{ roomConnectionLabel }}</span>
-          </div>
-        </div>
+        <RoomStatusBar class="mb-4" :room-code="trucoStore.roomCode" :is-host="isHost" :status="roomSocket.status.value" :viewer-count="roomSocket.viewerCount.value" />
 
         <div class="d-flex flex-column ga-4 mb-6">
           <TrucoTeamCard
@@ -117,6 +104,7 @@ import { useTrucoStore } from "@/modules/truco/store/useTrucoStore";
 import { useRoomSocket } from "@/modules/rooms/composables/useRoomSocket";
 import { useWakeLock } from "@/shared/composables/useWakeLock";
 import { useConfetti } from "@/shared/composables/useConfetti";
+import RoomStatusBar from "@/shared/components/RoomStatusBar.vue";
 import temaDaVitoriaAudio from "@/assets/audios/vitoria/tema-da-vitoria.mp3";
 
 const router = useRouter();
@@ -127,13 +115,6 @@ const teamOne = computed(() => trucoStore.teams[0] ?? null);
 const teamTwo = computed(() => trucoStore.teams[1] ?? null);
 const isHost = computed(() => Boolean(trucoStore.hostToken));
 const canControlRoom = computed(() => isHost.value && roomSocket.status.value === "connected");
-const roomConnectionLabel = computed(() => {
-  if (roomSocket.status.value === "connecting") return "Conectando...";
-  if (roomSocket.status.value === "reconnecting") return "Reconectando...";
-  if (roomSocket.status.value === "error") return "Conexão perdida";
-
-  return `${roomSocket.viewerCount.value} online`;
-});
 
 const { fireConfetti } = useConfetti();
 const { request } = useWakeLock();
@@ -294,52 +275,6 @@ onMounted(() => {
 .game-wrapper {
   max-width: 480px;
   width: 100%;
-}
-
-.room-status {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  min-height: 28px;
-  padding: 0 2px;
-}
-
-.room-status__main,
-.room-status__role,
-.room-status__online {
-  display: flex;
-  align-items: center;
-}
-
-.room-status__main {
-  min-width: 0;
-  gap: 8px;
-}
-
-.room-status__code {
-  color: rgb(var(--v-theme-primary));
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.room-status__role {
-  color: rgba(var(--v-theme-on-surface), 0.7);
-  gap: 4px;
-  font-size: 0.8rem;
-  white-space: nowrap;
-}
-
-.room-status__online {
-  color: rgba(var(--v-theme-on-surface), 0.55);
-  gap: 4px;
-  flex-shrink: 0;
-  font-size: 0.8rem;
-  white-space: nowrap;
-}
-
-.room-status__online--connected {
-  color: rgb(var(--v-theme-success));
 }
 
 .winner-dialog__home-btn {
