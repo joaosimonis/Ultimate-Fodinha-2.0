@@ -3,6 +3,34 @@ import { ref, computed } from "vue";
 import type { TrucoTeam, TrucoSetupPayload, TrucoMatchHistory, TrucoMode } from "../types/truco.types";
 import { TRUCO_MAX_SCORE_DEFAULT } from "@/modules/truco/constants/truco.constants";
 
+type TrucoSetupTeam = TrucoSetupPayload["teams"][number];
+
+const sortByName = <T extends { name: string }>(items: T[]) => [...items].sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
+
+const buildGeneratedTeamName = (players: Array<{ name: string }>) => players.map((player) => player.name).join(" + ");
+
+const isGeneratedTeamName = (team: TrucoSetupTeam) => {
+  const namesFromTeamName = team.name
+    .split("+")
+    .map((name) => name.trim())
+    .filter(Boolean)
+    .sort((a, b) => a.localeCompare(b, "pt-BR"));
+
+  const namesFromPlayers = sortByName(team.players).map((player) => player.name);
+
+  return namesFromTeamName.length === namesFromPlayers.length && namesFromTeamName.every((name, index) => name === namesFromPlayers[index]);
+};
+
+const normalizeSetupTeam = (team: TrucoSetupTeam): TrucoSetupTeam => {
+  const players = sortByName(team.players);
+  const name = isGeneratedTeamName(team) ? buildGeneratedTeamName(players) : team.name;
+
+  return {
+    name,
+    players,
+  };
+};
+
 export const useTrucoStore = defineStore(
   "truco",
   () => {
@@ -26,12 +54,15 @@ export const useTrucoStore = defineStore(
       maxScore.value = payload.maxScore;
       mode.value = payload.mode;
       history.value = [];
-      teams.value = payload.teams.map((t) => ({
-        id: crypto.randomUUID(),
-        name: t.name,
-        players: t.players,
-        score: 0,
-      }));
+      teams.value = payload.teams
+        .map(normalizeSetupTeam)
+        .sort((a, b) => a.name.localeCompare(b.name, "pt-BR"))
+        .map((t) => ({
+          id: crypto.randomUUID(),
+          name: t.name,
+          players: t.players,
+          score: 0,
+        }));
     };
 
     const addPoint = (teamId: string) => {
