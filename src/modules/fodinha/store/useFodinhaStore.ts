@@ -23,15 +23,17 @@ export const useFodinhaStore = defineStore(
       hostToken.value = payload.hostToken;
       initialLives.value = payload.initialLives;
       eliminationCounter.value = 0;
-      players.value = payload.players.map((p) => ({
-        id: p.id,
-        name: p.name,
-        avatarKey: p.avatarKey,
-        title: p.title,
-        lives: payload.initialLives,
-        isEliminated: false,
-        eliminationOrder: undefined,
-      }));
+      players.value = [...payload.players]
+        .sort((a, b) => a.name.localeCompare(b.name, "pt-BR"))
+        .map((p) => ({
+          id: p.id,
+          name: p.name,
+          avatarKey: p.avatarKey,
+          title: p.title,
+          lives: payload.initialLives,
+          isEliminated: false,
+          eliminationOrder: undefined,
+        }));
     };
 
     const removeLife = (playerId: string) => {
