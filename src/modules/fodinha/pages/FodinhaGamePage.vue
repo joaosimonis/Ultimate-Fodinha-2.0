@@ -1,27 +1,31 @@
 <template>
   <div class="game-page d-flex flex-column">
-    <SetupHeader title="Fodinha" title-icon="mdi-cards-spade" @back="openExitConfirmation">
-      <template #actions>
-        <div class="header-actions">
-          <v-chip v-if="fodinhaStore.roomCode" :color="roomSocket.status.value === 'connected' ? 'success' : 'medium-emphasis'" variant="tonal" size="small" prepend-icon="mdi-broadcast" rounded="lg">
-            {{ roomSocket.viewerCount.value }}
-          </v-chip>
-
-          <v-chip v-if="fodinhaStore.roomCode" color="secondary" variant="tonal" size="small" prepend-icon="mdi-pound" rounded="lg">
-            {{ fodinhaStore.roomCode }}
-          </v-chip>
-        </div>
-      </template>
-    </SetupHeader>
+    <SetupHeader title="Fodinha" title-icon="mdi-cards-spade" @back="openExitConfirmation" />
 
     <v-container class="flex-grow-1 py-4">
       <div class="game-wrapper mx-auto">
+        <div v-if="fodinhaStore.roomCode" class="room-status mb-4">
+          <div class="room-status__main">
+            <span class="room-status__code">#{{ fodinhaStore.roomCode }}</span>
+            <span class="room-status__role">
+              <v-icon :icon="isHost ? 'mdi-crown' : 'mdi-eye'" size="16" />
+              {{ isHost ? "Host" : "Assistindo" }}
+            </span>
+          </div>
+
+          <div class="room-status__online" :class="{ 'room-status__online--connected': roomSocket.status.value === 'connected' }">
+            <v-icon icon="mdi-broadcast" size="16" />
+            <span>{{ roomSocket.viewerCount.value }} online</span>
+          </div>
+        </div>
+
         <v-slide-y-transition group>
           <div v-for="player in fodinhaStore.players" :key="player.id" class="mb-3">
             <FodinhaPlayerCard
               :player="player"
               :initial-lives="fodinhaStore.initialLives"
               :active-players-count="fodinhaStore.activePlayers.length"
+              :readonly="!isHost"
               @add-life="addLife"
               @remove-life="removeLife"
             />
@@ -56,7 +60,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, watch } from "vue";
+import { computed, onMounted, watch } from "vue";
 
 import SetupHeader from "@/shared/components/SetupHeader.vue";
 import FodinhaPlayerCard from "@/modules/fodinha/components/FodinhaPlayerCard.vue";
@@ -73,6 +77,7 @@ const { fodinhaStore, confirmExit, showWinner, topThree, isFinishing, isStarting
 const roomSocket = useRoomSocket();
 const victoryAudio = new Audio(temaDaVitoriaAudio);
 victoryAudio.volume = 1;
+const isHost = computed(() => Boolean(fodinhaStore.hostToken));
 
 const getLivesByPlayerId = () =>
   fodinhaStore.players.reduce<Record<string, number>>((livesByPlayerId, player) => {
@@ -143,9 +148,49 @@ onMounted(() => {
   width: 100%;
 }
 
-.header-actions {
+.room-status {
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 28px;
+  padding: 0 2px;
+}
+
+.room-status__main,
+.room-status__role,
+.room-status__online {
+  display: flex;
+  align-items: center;
+}
+
+.room-status__main {
+  min-width: 0;
+  gap: 8px;
+}
+
+.room-status__code {
+  color: rgb(var(--v-theme-secondary));
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.room-status__role {
+  color: rgba(var(--v-theme-on-surface), 0.7);
+  gap: 4px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.room-status__online {
+  color: rgba(var(--v-theme-on-surface), 0.55);
+  gap: 4px;
+  flex-shrink: 0;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.room-status__online--connected {
+  color: rgb(var(--v-theme-success));
 }
 </style>

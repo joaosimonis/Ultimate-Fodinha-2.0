@@ -13,7 +13,7 @@
             <span v-for="life in initialLives" :key="life" class="life-icon" :class="getLifeClasses(life)"> ❤️ </span>
           </div>
         </div>
-        <div class="d-flex align-center ga-2">
+        <div v-if="!readonly" class="d-flex align-center ga-2">
           <v-btn icon variant="tonal" color="success" size="small" :disabled="player.isEliminated" @click="$emit('add-life', player.id)">
             <v-icon icon="mdi-plus" />
           </v-btn>
@@ -35,9 +35,12 @@ interface FodinhaPlayerCardProps {
   player: FodinhaPlayer;
   initialLives: number;
   activePlayersCount: number;
+  readonly?: boolean;
 }
 
-const props = defineProps<FodinhaPlayerCardProps>();
+const props = withDefaults(defineProps<FodinhaPlayerCardProps>(), {
+  readonly: false,
+});
 const emit = defineEmits<{
   "add-life": [playerId: string];
   "remove-life": [playerId: string];
