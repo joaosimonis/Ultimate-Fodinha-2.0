@@ -151,7 +151,7 @@ const startGame = async () => {
       hostToken: match.host_token ?? "",
     });
 
-    router.push({ name: "truco-game" });
+    router.push({ name: "truco-game", params: { roomCode: match.room_code } });
   } catch (error) {
     setupError.value = getApiErrorMessage(error);
   } finally {

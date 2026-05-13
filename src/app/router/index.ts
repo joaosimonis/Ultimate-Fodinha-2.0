@@ -11,8 +11,11 @@ import RankingPage from "@/modules/ranking/pages/RankingPage.vue";
 import PlayersPage from "@/modules/players/pages/PlayersPage.vue";
 import PlayersProfilePage from "@/modules/players/pages/PlayersProfilePage.vue";
 import RoomsPage from "@/modules/rooms/pages/RoomsPage.vue";
+import RoomEntryPage from "@/modules/rooms/pages/RoomEntryPage.vue";
 import AdminPlayersPage from "@/modules/auth/pages/AdminPlayersPage.vue";
 import { adminAuthStorage } from "@/modules/auth/storage/adminAuthStorage";
+
+const getRouteParam = (param: string | string[] | undefined) => (Array.isArray(param) ? param[0] : param);
 
 const router = createRouter({
   history: createWebHistory(),
@@ -21,13 +24,19 @@ const router = createRouter({
 
     { path: "/truco/setup", name: "truco-setup", component: TrucoSetupPage },
     {
-      path: "/truco/game",
+      path: "/truco/game/:roomCode?",
       name: "truco-game",
       component: TrucoGamePage,
-      beforeEnter: () => {
+      beforeEnter: (to) => {
         const trucoStore = useTrucoStore();
 
         if (!trucoStore.hasGame) {
+          const roomCode = getRouteParam(to.params.roomCode);
+
+          if (roomCode) {
+            return { name: "room-entry", params: { roomCode } };
+          }
+
           return { name: "truco-setup" };
         }
       },
@@ -35,13 +44,19 @@ const router = createRouter({
 
     { path: "/fodinha/setup", name: "fodinha-setup", component: FodinhaSetupPage },
     {
-      path: "/fodinha/game",
+      path: "/fodinha/game/:roomCode?",
       name: "fodinha-game",
       component: FodinhaGamePage,
-      beforeEnter: () => {
+      beforeEnter: (to) => {
         const fodinhaStore = useFodinhaStore();
 
         if (!fodinhaStore.hasGame) {
+          const roomCode = getRouteParam(to.params.roomCode);
+
+          if (roomCode) {
+            return { name: "room-entry", params: { roomCode } };
+          }
+
           return { name: "fodinha-setup" };
         }
       },
@@ -49,6 +64,7 @@ const router = createRouter({
 
     { path: "/ranking", name: "ranking", component: RankingPage },
     { path: "/rooms", name: "rooms", component: RoomsPage },
+    { path: "/rooms/:roomCode", name: "room-entry", component: RoomEntryPage },
 
     { path: "/players", name: "players", component: PlayersPage },
     { path: "/players/:id", name: "player-profile", component: PlayersProfilePage },

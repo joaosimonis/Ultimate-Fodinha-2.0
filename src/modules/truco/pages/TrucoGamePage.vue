@@ -216,6 +216,7 @@ const newGameSameTeams = async () => {
     });
 
     showWinner.value = false;
+    router.replace({ name: "truco-game", params: { roomCode: match.room_code } });
   } catch (error) {
     finishError.value = getApiErrorMessage(error);
   } finally {

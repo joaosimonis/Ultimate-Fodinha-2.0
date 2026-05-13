@@ -74,7 +74,7 @@ const startGame = async () => {
       players: selectedPlayers.value,
       initialLives: selectedLives.value,
     })
-    router.push({ name: "fodinha-game" });
+    router.push({ name: "fodinha-game", params: { roomCode: match.room_code } });
   } catch (error) {
     setupError.value = getApiErrorMessage(error);
   } finally {

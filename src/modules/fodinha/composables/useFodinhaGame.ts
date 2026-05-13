@@ -115,6 +115,7 @@ export function useFodinhaGame() {
       });
 
       showWinner.value = false;
+      router.replace({ name: "fodinha-game", params: { roomCode: match.room_code } });
     } catch (error) {
       finishError.value = getApiErrorMessage(error);
     } finally {

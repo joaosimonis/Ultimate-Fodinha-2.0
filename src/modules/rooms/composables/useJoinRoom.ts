@@ -46,7 +46,7 @@ export function useJoinRoom() {
 
     room.live_state?.lives && fodinhaStore.syncLives(room.live_state.lives);
 
-    router.push({ name: "fodinha-game" });
+    router.push({ name: "fodinha-game", params: { roomCode: room.room_code } });
   };
 
   const groupPlayersByTeam = (matchPlayers: MatchPlayerResponse[]) => {
@@ -99,7 +99,7 @@ export function useJoinRoom() {
 
     room.live_state?.scores && trucoStore.syncScores(room.live_state.scores);
 
-    router.push({ name: "truco-game" });
+    router.push({ name: "truco-game", params: { roomCode: room.room_code } });
   };
 
   const joinRoom = async (roomCode: string) => {
