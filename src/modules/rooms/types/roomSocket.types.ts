@@ -45,4 +45,4 @@ export interface RoomStateUpdateRequest<TPayload = MatchLiveStateResponse> {
   payload: TPayload;
 }
 
-export type RoomSocketStatus = "idle" | "connecting" | "connected" | "closed" | "error";
+export type RoomSocketStatus = "idle" | "connecting" | "connected" | "reconnecting" | "closed" | "error";

@@ -15,7 +15,7 @@
 
           <div class="room-status__online" :class="{ 'room-status__online--connected': roomSocket.status.value === 'connected' }">
             <v-icon icon="mdi-broadcast" size="16" />
-            <span>{{ roomSocket.viewerCount.value }} online</span>
+            <span>{{ roomConnectionLabel }}</span>
           </div>
         </div>
 
@@ -25,7 +25,7 @@
               :player="player"
               :initial-lives="fodinhaStore.initialLives"
               :active-players-count="fodinhaStore.activePlayers.length"
-              :readonly="!isHost"
+              :readonly="!canControlRoom"
               @add-life="addLife"
               @remove-life="removeLife"
             />
@@ -79,6 +79,14 @@ const roomSocket = useRoomSocket();
 const victoryAudio = new Audio(temaDaVitoriaAudio);
 victoryAudio.volume = 1;
 const isHost = computed(() => Boolean(fodinhaStore.hostToken));
+const canControlRoom = computed(() => isHost.value && roomSocket.status.value === "connected");
+const roomConnectionLabel = computed(() => {
+  if (roomSocket.status.value === "connecting") return "Conectando...";
+  if (roomSocket.status.value === "reconnecting") return "Reconectando...";
+  if (roomSocket.status.value === "error") return "Conexão perdida";
+
+  return `${roomSocket.viewerCount.value} online`;
+});
 
 const getLivesByPlayerId = () =>
   fodinhaStore.players.reduce<Record<string, number>>((livesByPlayerId, player) => {

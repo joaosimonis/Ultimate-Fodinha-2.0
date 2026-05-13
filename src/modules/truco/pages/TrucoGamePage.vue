@@ -15,7 +15,7 @@
 
           <div class="room-status__online" :class="{ 'room-status__online--connected': roomSocket.status.value === 'connected' }">
             <v-icon icon="mdi-broadcast" size="16" />
-            <span>{{ roomSocket.viewerCount.value }} online</span>
+            <span>{{ roomConnectionLabel }}</span>
           </div>
         </div>
 
@@ -27,7 +27,7 @@
             :team-number="index + 1"
             :max-score="trucoStore.maxScore"
             :color="index === 0 ? 'primary' : 'error'"
-            :readonly="!isHost"
+            :readonly="!canControlRoom"
             @add-point="addPoint(team.id)"
             @remove-point="removePoint(team.id)"
           />
@@ -126,6 +126,14 @@ const roomSocket = useRoomSocket();
 const teamOne = computed(() => trucoStore.teams[0] ?? null);
 const teamTwo = computed(() => trucoStore.teams[1] ?? null);
 const isHost = computed(() => Boolean(trucoStore.hostToken));
+const canControlRoom = computed(() => isHost.value && roomSocket.status.value === "connected");
+const roomConnectionLabel = computed(() => {
+  if (roomSocket.status.value === "connecting") return "Conectando...";
+  if (roomSocket.status.value === "reconnecting") return "Reconectando...";
+  if (roomSocket.status.value === "error") return "Conexão perdida";
+
+  return `${roomSocket.viewerCount.value} online`;
+});
 
 const { fireConfetti } = useConfetti();
 const { request } = useWakeLock();
