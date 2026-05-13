@@ -36,7 +36,7 @@ export function useFodinhaGame() {
   };
 
   const finishMatch = async () => {
-    if (!fodinhaStore.matchId || isFinishing.value) return;
+    if (!fodinhaStore.matchId || !fodinhaStore.hostToken || isFinishing.value) return;
 
     isFinishing.value = true;
     finishError.value = "";

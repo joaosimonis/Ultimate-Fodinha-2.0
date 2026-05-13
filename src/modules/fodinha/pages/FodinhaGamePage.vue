@@ -2,9 +2,15 @@
   <div class="game-page d-flex flex-column">
     <SetupHeader title="Fodinha" title-icon="mdi-cards-spade" @back="openExitConfirmation">
       <template #actions>
-        <v-chip v-if="fodinhaStore.roomCode" color="secondary" variant="tonal" size="small" prepend-icon="mdi-pound" rounded="lg">
-          {{ fodinhaStore.roomCode }}
-        </v-chip>
+        <div class="header-actions">
+          <v-chip v-if="fodinhaStore.roomCode" :color="roomSocket.status.value === 'connected' ? 'success' : 'medium-emphasis'" variant="tonal" size="small" prepend-icon="mdi-broadcast" rounded="lg">
+            {{ roomSocket.viewerCount.value }}
+          </v-chip>
+
+          <v-chip v-if="fodinhaStore.roomCode" color="secondary" variant="tonal" size="small" prepend-icon="mdi-pound" rounded="lg">
+            {{ fodinhaStore.roomCode }}
+          </v-chip>
+        </div>
       </template>
     </SetupHeader>
 
@@ -16,8 +22,8 @@
               :player="player"
               :initial-lives="fodinhaStore.initialLives"
               :active-players-count="fodinhaStore.activePlayers.length"
-              @add-life="fodinhaStore.addLife"
-              @remove-life="fodinhaStore.removeLife"
+              @add-life="addLife"
+              @remove-life="removeLife"
             />
           </div>
         </v-slide-y-transition>
@@ -56,6 +62,7 @@ import SetupHeader from "@/shared/components/SetupHeader.vue";
 import FodinhaPlayerCard from "@/modules/fodinha/components/FodinhaPlayerCard.vue";
 import FodinhaWinnerDialog from "@/modules/fodinha/components/FodinhaWinnerDialog.vue";
 import { useFodinhaGame } from "@/modules/fodinha/composables/useFodinhaGame";
+import { useRoomSocket } from "@/modules/rooms/composables/useRoomSocket";
 import { useWakeLock } from "@/shared/composables/useWakeLock";
 import { useConfetti } from "@/shared/composables/useConfetti";
 import temaDaVitoriaAudio from "@/assets/audios/vitoria/tema-da-vitoria.mp3";
@@ -63,8 +70,46 @@ import temaDaVitoriaAudio from "@/assets/audios/vitoria/tema-da-vitoria.mp3";
 const { fireConfetti } = useConfetti();
 const { request } = useWakeLock();
 const { fodinhaStore, confirmExit, showWinner, topThree, isFinishing, isStartingRematch, finishError, openExitConfirmation, closeExitConfirmation, exitGame, newGameSamePlayers, reconfigure, goHome } = useFodinhaGame();
+const roomSocket = useRoomSocket();
 const victoryAudio = new Audio(temaDaVitoriaAudio);
 victoryAudio.volume = 1;
+
+const getLivesByPlayerId = () =>
+  fodinhaStore.players.reduce<Record<string, number>>((livesByPlayerId, player) => {
+    livesByPlayerId[player.id] = player.lives;
+    return livesByPlayerId;
+  }, {});
+
+const publishLives = () => {
+  if (!fodinhaStore.hostToken) return;
+
+  roomSocket.sendRoomState(
+    {
+      mode: "fodinha",
+      lives: getLivesByPlayerId(),
+    },
+    fodinhaStore.hostToken
+  );
+};
+
+const addLife = (playerId: string) => {
+  fodinhaStore.addLife(playerId);
+  publishLives();
+};
+
+const removeLife = (playerId: string) => {
+  fodinhaStore.removeLife(playerId);
+  publishLives();
+};
+
+watch(
+  () => roomSocket.liveState.value?.lives,
+  (lives) => {
+    if (lives) {
+      fodinhaStore.syncLives(lives);
+    }
+  }
+);
 
 watch(
   () => fodinhaStore.winner, 
@@ -80,7 +125,11 @@ watch(
 )
 
 onMounted(() => {
-  void request()
+  void request();
+
+  if (fodinhaStore.roomCode) {
+    roomSocket.connect(fodinhaStore.roomCode);
+  }
 })
 </script>
 
@@ -92,5 +141,11 @@ onMounted(() => {
 .game-wrapper {
   max-width: 480px;
   width: 100%;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 </style>
