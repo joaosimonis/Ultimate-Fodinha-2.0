@@ -1,17 +1,36 @@
 <template>
   <div class="game-page d-flex flex-column">
-    <SetupHeader title="Truco" title-icon="mdi-cards" @back="confirmExit = true">
-      <template #actions>
-        <v-chip v-if="trucoStore.roomCode" color="primary" variant="tonal" size="small" prepend-icon="mdi-pound" rounded="lg">
-          {{ trucoStore.roomCode }}
-        </v-chip>
-      </template>
-    </SetupHeader>
+    <SetupHeader title="Truco" title-icon="mdi-cards" @back="confirmExit = true" />
 
     <v-container class="flex-grow-1 py-4">
       <div class="game-wrapper mx-auto">
+        <div v-if="trucoStore.roomCode" class="room-status mb-4">
+          <div class="room-status__main">
+            <span class="room-status__code">#{{ trucoStore.roomCode }}</span>
+            <span class="room-status__role">
+              <v-icon :icon="isHost ? 'mdi-crown' : 'mdi-eye'" size="16" />
+              {{ isHost ? "Host" : "Assistindo" }}
+            </span>
+          </div>
+
+          <div class="room-status__online" :class="{ 'room-status__online--connected': roomSocket.status.value === 'connected' }">
+            <v-icon icon="mdi-broadcast" size="16" />
+            <span>{{ roomSocket.viewerCount.value }} online</span>
+          </div>
+        </div>
+
         <div class="d-flex flex-column ga-4 mb-6">
-          <TrucoTeamCard v-for="(team, index) in trucoStore.teams" :key="team.id" :team="team" :team-number="index + 1" :max-score="trucoStore.maxScore" :color="index === 0 ? 'primary' : 'error'" @add-point="trucoStore.addPoint(team.id)" @remove-point="trucoStore.removePoint(team.id)" />
+          <TrucoTeamCard
+            v-for="(team, index) in trucoStore.teams"
+            :key="team.id"
+            :team="team"
+            :team-number="index + 1"
+            :max-score="trucoStore.maxScore"
+            :color="index === 0 ? 'primary' : 'error'"
+            :readonly="!isHost"
+            @add-point="addPoint(team.id)"
+            @remove-point="removePoint(team.id)"
+          />
         </div>
       </div>
     </v-container>
@@ -88,15 +107,18 @@ import SetupHeader from "@/shared/components/SetupHeader.vue";
 import WinnerHero from "@/shared/components/WinnerHero.vue";
 import TrucoTeamCard from "@/modules/truco/components/TrucoTeamCard.vue";
 import { useTrucoStore } from "@/modules/truco/store/useTrucoStore";
+import { useRoomSocket } from "@/modules/rooms/composables/useRoomSocket";
 import { useWakeLock } from "@/shared/composables/useWakeLock";
 import { useConfetti } from "@/shared/composables/useConfetti";
 import temaDaVitoriaAudio from "@/assets/audios/vitoria/tema-da-vitoria.mp3";
 
 const router = useRouter();
 const trucoStore = useTrucoStore();
+const roomSocket = useRoomSocket();
 
 const teamOne = computed(() => trucoStore.teams[0] ?? null);
 const teamTwo = computed(() => trucoStore.teams[1] ?? null);
+const isHost = computed(() => Boolean(trucoStore.hostToken));
 
 const { fireConfetti } = useConfetti();
 const { request } = useWakeLock();
@@ -114,8 +136,36 @@ const exitGame = () => {
 
 const showWinner = ref(Boolean(trucoStore.winner));
 
+const getScoresByTeamName = () =>
+  trucoStore.teams.reduce<Record<string, number>>((scoresByTeamName, team) => {
+    scoresByTeamName[trucoStore.teamName(team)] = team.score;
+    return scoresByTeamName;
+  }, {});
+
+const publishScores = () => {
+  if (!trucoStore.hostToken) return;
+
+  roomSocket.sendRoomState(
+    {
+      mode: "truco",
+      scores: getScoresByTeamName(),
+    },
+    trucoStore.hostToken
+  );
+};
+
+const addPoint = (teamId: string) => {
+  trucoStore.addPoint(teamId);
+  publishScores();
+};
+
+const removePoint = (teamId: string) => {
+  trucoStore.removePoint(teamId);
+  publishScores();
+};
+
 const finishMatch = async () => {
-  if (!trucoStore.matchId || isFinishing.value || trucoStore.teams.length !== 2) return;
+  if (!trucoStore.matchId || !trucoStore.hostToken || isFinishing.value || trucoStore.teams.length !== 2) return;
 
   isFinishing.value = true;
   finishError.value = "";
@@ -190,6 +240,15 @@ const goHome = () => {
 };
 
 watch(
+  () => roomSocket.liveState.value?.scores,
+  (scores) => {
+    if (scores) {
+      trucoStore.syncScores(scores);
+    }
+  }
+);
+
+watch(
   () => trucoStore.winner,
   (winner) => {
     if (winner) {
@@ -205,6 +264,10 @@ watch(
 
 onMounted(() => {
   void request();
+
+  if (trucoStore.roomCode) {
+    roomSocket.connect(trucoStore.roomCode);
+  }
 });
 </script>
 
@@ -216,6 +279,52 @@ onMounted(() => {
 .game-wrapper {
   max-width: 480px;
   width: 100%;
+}
+
+.room-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 28px;
+  padding: 0 2px;
+}
+
+.room-status__main,
+.room-status__role,
+.room-status__online {
+  display: flex;
+  align-items: center;
+}
+
+.room-status__main {
+  min-width: 0;
+  gap: 8px;
+}
+
+.room-status__code {
+  color: rgb(var(--v-theme-primary));
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.room-status__role {
+  color: rgba(var(--v-theme-on-surface), 0.7);
+  gap: 4px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.room-status__online {
+  color: rgba(var(--v-theme-on-surface), 0.55);
+  gap: 4px;
+  flex-shrink: 0;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.room-status__online--connected {
+  color: rgb(var(--v-theme-success));
 }
 
 .winner-dialog__home-btn {

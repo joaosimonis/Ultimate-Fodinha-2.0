@@ -23,7 +23,7 @@
       </div>
 
       <!-- Botões de pontuação -->
-      <div class="d-flex ga-3 justify-end">
+      <div v-if="!readonly" class="d-flex ga-3 justify-end">
         <v-btn icon variant="tonal" color="grey" size="x-large" :disabled="!!trucoStore.winner || team.score === 0" @click="$emit('remove-point')">
           <v-icon icon="mdi-minus" size="28" />
         </v-btn>
@@ -47,6 +47,7 @@ const props = defineProps<{
   teamNumber: number;
   maxScore: number;
   color: string;
+  readonly?: boolean;
 }>();
 
 defineEmits<{
