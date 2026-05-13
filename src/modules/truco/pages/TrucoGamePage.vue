@@ -78,7 +78,7 @@
             {{ finishError }}
           </v-alert>
 
-          <div class="d-flex flex-column ga-3">
+          <div v-if="isHost" class="d-flex flex-column ga-3">
             <v-btn color="primary" variant="flat" rounded="lg" size="large" :disabled="isFinishing || isStartingRematch" :loading="isStartingRematch" @click="newGameSameTeams">
               <v-icon start icon="mdi-refresh" />
               <span>Revanche</span>
@@ -90,6 +90,13 @@
             <v-btn class="winner-dialog__home-btn" variant="outlined" color="medium-emphasis" rounded="lg" size="large" :disabled="isFinishing || isStartingRematch" @click="goHome">
               <v-icon start icon="mdi-home" />
               <span>Início</span>
+            </v-btn>
+          </div>
+
+          <div v-else class="d-flex flex-column ga-3">
+            <v-btn class="winner-dialog__home-btn" variant="outlined" color="medium-emphasis" rounded="lg" size="large" @click="goHome">
+              <v-icon start icon="mdi-home" />
+              <span>Ir para início</span>
             </v-btn>
           </div>
         </v-card-text>

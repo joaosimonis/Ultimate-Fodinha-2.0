@@ -14,11 +14,11 @@
           {{ finishError }}
         </v-alert>
         <div class="d-flex flex-column ga-3">
-          <v-btn color="secondary" variant="flat" rounded="lg" size="large" :disabled="isFinishing || isStartingRematch" :loading="isStartingRematch" @click="$emit('new-game')">
+          <v-btn v-if="isHost" color="secondary" variant="flat" rounded="lg" size="large" :disabled="isFinishing || isStartingRematch" :loading="isStartingRematch" @click="$emit('new-game')">
             <v-icon start icon="mdi-refresh" />
             <span>Revanche</span>
           </v-btn>
-          <v-btn color="surface-variant" variant="tonal" rounded="lg" size="large" :disabled="isFinishing || isStartingRematch" @click="$emit('reconfigure')">
+          <v-btn v-if="isHost" color="surface-variant" variant="tonal" rounded="lg" size="large" :disabled="isFinishing || isStartingRematch" @click="$emit('reconfigure')">
             <v-icon start icon="mdi-cog" />
             <span>Novo jogo</span>
           </v-btn>
@@ -43,9 +43,12 @@ interface FodinhaWinnerDialogProps {
   finishError?: string;
   isFinishing?: boolean;
   isStartingRematch?: boolean;
+  isHost?: boolean;
 }
 
-defineProps<FodinhaWinnerDialogProps>();
+withDefaults(defineProps<FodinhaWinnerDialogProps>(), {
+  isHost: false,
+});
 defineEmits<{
   "update:modelValue": [value: boolean];
   "new-game": [];

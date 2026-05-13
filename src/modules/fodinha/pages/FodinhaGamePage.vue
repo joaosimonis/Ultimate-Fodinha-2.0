@@ -52,6 +52,7 @@
       :finish-error="finishError"
       :is-finishing="isFinishing"
       :is-starting-rematch="isStartingRematch"
+      :is-host="isHost"
       @new-game="newGameSamePlayers"
       @reconfigure="reconfigure"
       @go-home="goHome"
