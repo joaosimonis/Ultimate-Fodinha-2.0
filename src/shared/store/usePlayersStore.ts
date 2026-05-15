@@ -1,52 +1,59 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import type { RegisteredPlayer } from "../types/players.types";
+import { getApiErrorMessage } from "@/api/error";
+import { playersApi } from "@/modules/players/api";
+import type { CreatePlayerRequest, PlayerResponse } from "@/modules/players/types/players.types";
+import type { RegisteredPlayer } from "@/modules/players/types/players.types";
 
-const DEFAULT_PLAYERS: RegisteredPlayer[] = [
-  { id: crypto.randomUUID(), name: "Ângela" },
-  { id: crypto.randomUUID(), name: "Bruno" },
-  { id: crypto.randomUUID(), name: "Duda" },
-  { id: crypto.randomUUID(), name: "Fabri" },
-  { id: crypto.randomUUID(), name: "Fran" },
-  { id: crypto.randomUUID(), name: "Geladeira" },
-  { id: crypto.randomUUID(), name: "Grade" },
-  { id: crypto.randomUUID(), name: "Guto" },
-  { id: crypto.randomUUID(), name: "Habekost" },
-  { id: crypto.randomUUID(), name: "João" },
-  { id: crypto.randomUUID(), name: "Kevin" },
-  { id: crypto.randomUUID(), name: "Knak" },
-  { id: crypto.randomUUID(), name: "Kreutzer" },
-  { id: crypto.randomUUID(), name: "Laura" },
-  { id: crypto.randomUUID(), name: "Laura S." },
-  { id: crypto.randomUUID(), name: "Leo" },
-  { id: crypto.randomUUID(), name: "Lily" },
-  { id: crypto.randomUUID(), name: "Luís S." },
-  { id: crypto.randomUUID(), name: "Messi" },
-  { id: crypto.randomUUID(), name: "Murilo" },
-  { id: crypto.randomUUID(), name: "Pelotas" },
-  { id: crypto.randomUUID(), name: "Rogus" },
-  { id: crypto.randomUUID(), name: "Thaís" },
-  { id: crypto.randomUUID(), name: "Thiago" },
-  { id: crypto.randomUUID(), name: "Vogt" },
-];
+const toRegisteredPlayer = (player: PlayerResponse): RegisteredPlayer => ({
+  id: player.id,
+  name: player.name,
+  avatarKey: player.avatar_key,
+  title: player.title,
+});
 
-export const usePlayersStore = defineStore(
-  "players",
-  () => {
-    const players = ref<RegisteredPlayer[]>(DEFAULT_PLAYERS);
+export const usePlayersStore = defineStore("players", () => {
+  const players = ref<RegisteredPlayer[]>([]);
+  const isLoading = ref(false);
+  const hasLoaded = ref(false);
+  const error = ref<string | null>(null);
 
-    const addPlayer = (name: string) => {
-      players.value.push({
-        id: crypto.randomUUID(),
-        name,
-      });
-    };
+  const loadPlayers = async () => {
+    isLoading.value = true;
+    error.value = null;
 
-    const removePlayer = (id: string) => {
+    try {
+      const response = await playersApi.list();
+      players.value = response.map(toRegisteredPlayer);
+      hasLoaded.value = true;
+    } catch (err) {
+      error.value = getApiErrorMessage(err);
+      throw err;
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
+  const createPlayer = async (payload: CreatePlayerRequest) => {
+    error.value = null;
+
+    const response = await playersApi.create(payload);
+    const player = toRegisteredPlayer(response);
+    players.value = [...players.value, player];
+    return player;
+  };
+
+  const removePlayer = async (id: string) => {
+    error.value = null;
+
+    try {
+      await playersApi.remove(id);
       players.value = players.value.filter((p) => p.id !== id);
-    };
+    } catch (err) {
+      error.value = getApiErrorMessage(err);
+      throw err;
+    }
+  };
 
-    return { players, addPlayer, removePlayer };
-  },
-  { persist: true }
-);
+  return { players, isLoading, hasLoaded, error, loadPlayers, createPlayer, removePlayer };
+});

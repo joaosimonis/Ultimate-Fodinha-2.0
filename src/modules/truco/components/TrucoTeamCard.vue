@@ -16,14 +16,14 @@
       <div class="d-flex ga-2 mb-4">
         <div v-for="player in team.players" :key="player.id" class="d-flex align-center ga-1">
           <v-avatar size="32">
-            <v-img :src="getAvatarUrl(player.name)" :alt="player.name" />
+            <v-img :src="getPlayerAvatarUrl(player.name)" :alt="player.name" />
           </v-avatar>
           <span class="text-caption">{{ player.name }}</span>
         </div>
       </div>
 
       <!-- Botões de pontuação -->
-      <div class="d-flex ga-3 justify-end">
+      <div v-if="!readonly" class="d-flex ga-3 justify-end">
         <v-btn icon variant="tonal" color="grey" size="x-large" :disabled="!!trucoStore.winner || team.score === 0" @click="$emit('remove-point')">
           <v-icon icon="mdi-minus" size="28" />
         </v-btn>
@@ -39,7 +39,7 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { useTrucoStore } from "@/modules/truco/store/useTrucoStore";
-import { getAvatarUrl } from "@/shared/utils/avatar";
+import { getPlayerAvatarUrl } from "@/shared/utils/avatar";
 import type { TrucoTeam } from "../types/truco.types";
 
 const props = defineProps<{
@@ -47,6 +47,7 @@ const props = defineProps<{
   teamNumber: number;
   maxScore: number;
   color: string;
+  readonly?: boolean;
 }>();
 
 defineEmits<{

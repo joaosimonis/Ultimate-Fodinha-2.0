@@ -2,91 +2,105 @@
   <div class="setup-page d-flex flex-column">
     <SetupPageHeader title="Ranking" title-icon="mdi-trophy" />
 
-    <!-- Abas -->
-    <v-tabs v-model="activeTab" grow color="primary" class="mb-2">
+    <v-tabs v-model="activeTab" grow color="primary" height="48" class="ranking-tabs mb-2">
       <v-tab value="fodinha">
         <v-icon icon="mdi-cards-spade" start />
         <span>Fodinha</span>
       </v-tab>
-      <v-tab value="truco-players">
-        <v-icon icon="mdi-cards" start />
-        <span>Truco</span>
+      <v-tab value="truco-duo">
+        <v-icon icon="mdi-account-multiple" start />
+        <span>Dupla</span>
       </v-tab>
-      <v-tab value="truco-teams">
+      <v-tab value="truco-trio">
         <v-icon icon="mdi-account-group" start />
-        <span>Duplas/Trios</span>
+        <span>Trio</span>
       </v-tab>
     </v-tabs>
 
     <v-container class="flex-grow-1 py-4 px-4">
       <div class="ranking-wrapper mx-auto">
-        <v-tabs-window v-model="activeTab">
-          <!-- Aba: Fodinha -->
+        <AppLoading v-if="isLoading" message="Carregando ranking..." />
+
+        <AppErrorState v-else-if="error" :message="error" action-label="Tentar novamente" @action="loadRankings" />
+
+        <v-tabs-window v-else v-model="activeTab">
           <v-tabs-window-item value="fodinha">
-            <div v-if="rankingStore.fodinhRanking.length === 0" class="empty-state">
+            <div v-if="fodinhaRanking.length === 0" class="empty-state">
               <v-icon icon="mdi-cards-spade" size="48" class="text-medium-emphasis mb-3" />
               <p class="text-body-2 text-medium-emphasis">Nenhuma partida registrada ainda</p>
             </div>
             <div v-else class="d-flex flex-column ga-3">
-              <RankingPlayerCard v-for="(player, index) in rankingStore.fodinhRanking" :key="player.playerId" :stats="player" :position="index + 1" />
+              <FodinhaRankingCard v-for="player in fodinhaRanking" :key="player.player_id" :stats="player" :position="player.position" />
             </div>
           </v-tabs-window-item>
 
-          <!-- Aba: Truco Jogadores -->
-          <v-tabs-window-item value="truco-players">
-            <div v-if="rankingStore.trucoPlayerRanking.length === 0" class="empty-state">
-              <v-icon icon="mdi-cards" size="48" class="text-medium-emphasis mb-3" />
+          <v-tabs-window-item value="truco-duo">
+            <div v-if="trucoDuoRanking.length === 0" class="empty-state">
+              <v-icon icon="mdi-account-multiple" size="48" class="text-medium-emphasis mb-3" />
               <p class="text-body-2 text-medium-emphasis">Nenhuma partida registrada ainda</p>
             </div>
             <div v-else class="d-flex flex-column ga-3">
-              <RankingPlayerCard v-for="(player, index) in rankingStore.trucoPlayerRanking" :key="player.playerId" :stats="player" :position="index + 1" />
+              <TrucoRankingCard v-for="team in trucoDuoRanking" :key="team.team_key" :stats="team" :position="team.position" />
             </div>
           </v-tabs-window-item>
 
-          <!-- Aba: Truco Duplas -->
-          <v-tabs-window-item value="truco-teams">
-            <div v-if="rankingStore.trucoTeamRanking.length === 0" class="empty-state">
+          <v-tabs-window-item value="truco-trio">
+            <div v-if="trucoTrioRanking.length === 0" class="empty-state">
               <v-icon icon="mdi-account-group" size="48" class="text-medium-emphasis mb-3" />
               <p class="text-body-2 text-medium-emphasis">Nenhuma partida registrada ainda</p>
             </div>
             <div v-else class="d-flex flex-column ga-3">
-              <RankingTeamCard v-for="(team, index) in rankingStore.trucoTeamRanking" :key="team.teamKey" :stats="team" :position="index + 1" />
+              <TrucoRankingCard v-for="team in trucoTrioRanking" :key="team.team_key" :stats="team" :position="team.position" />
             </div>
           </v-tabs-window-item>
         </v-tabs-window>
       </div>
     </v-container>
-
-    <!-- Dialog: Confirmar limpeza -->
-    <v-dialog v-model="confirmClear" max-width="320">
-      <v-card rounded="lg">
-        <v-card-title class="pt-5 px-5">Limpar ranking?</v-card-title>
-        <v-card-text class="px-5">Todos os dados serão apagados permanentemente.</v-card-text>
-        <v-card-actions class="px-5 pb-5 ga-2">
-          <v-btn variant="tonal" rounded="lg" @click="confirmClear = false">Cancelar</v-btn>
-          <v-btn color="error" variant="flat" rounded="lg" @click="clearRanking">Limpar</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
+import { getApiErrorMessage } from "@/api/error";
+import { rankingApi } from "@/modules/ranking/api";
+import FodinhaRankingCard from "@/modules/ranking/components/FodinhaRankingCard.vue";
+import TrucoRankingCard from "@/modules/ranking/components/TrucoRankingCard.vue";
+import type { FodinhaRankingResponse, TrucoTeamRankingResponse } from "@/modules/ranking/types/ranking.types";
+import AppErrorState from "@/shared/components/AppErrorState.vue";
+import AppLoading from "@/shared/components/AppLoading.vue";
 import SetupPageHeader from "@/shared/components/SetupHeader.vue";
-import { useRankingStore } from "@/modules/ranking/store/useRankingStore";
-import RankingPlayerCard from "@/modules/ranking/components/RankingPlayerCard.vue";
-import RankingTeamCard from "@/modules/ranking/components/RankingTeamCard.vue";
-
-const rankingStore = useRankingStore();
 
 const activeTab = ref("fodinha");
-const confirmClear = ref(false);
+const fodinhaRanking = ref<FodinhaRankingResponse[]>([]);
+const trucoDuoRanking = ref<TrucoTeamRankingResponse[]>([]);
+const trucoTrioRanking = ref<TrucoTeamRankingResponse[]>([]);
+const isLoading = ref(false);
+const error = ref("");
 
-const clearRanking = () => {
-  rankingStore.clearAll();
-  confirmClear.value = false;
+const loadRankings = async () => {
+  isLoading.value = true;
+  error.value = "";
+
+  try {
+    const [fodinha, trucoDuo, trucoTrio] = await Promise.all([
+      rankingApi.getFodinhaRanking(),
+      rankingApi.getTrucoTeamRanking(2),
+      rankingApi.getTrucoTeamRanking(3),
+    ]);
+
+    fodinhaRanking.value = fodinha;
+    trucoDuoRanking.value = trucoDuo;
+    trucoTrioRanking.value = trucoTrio;
+  } catch (err) {
+    error.value = getApiErrorMessage(err);
+  } finally {
+    isLoading.value = false;
+  }
 };
+
+onMounted(() => {
+  void loadRankings();
+});
 </script>
 
 <style scoped>
@@ -97,6 +111,23 @@ const clearRanking = () => {
 .ranking-wrapper {
   max-width: 480px;
   width: 100%;
+}
+
+.ranking-tabs {
+  flex: 0 0 auto;
+}
+
+.ranking-tabs :deep(.v-slide-group__container),
+.ranking-tabs :deep(.v-slide-group__content),
+.ranking-tabs :deep(.v-tab) {
+  height: 48px;
+  max-height: 48px;
+}
+
+.ranking-tabs :deep(.v-tab) {
+  min-width: 0;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .empty-state {

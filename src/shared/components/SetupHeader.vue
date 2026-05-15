@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import { useAttrs } from "vue";
+import { getCurrentInstance } from "vue";
 import { useRouter } from "vue-router";
 
 interface SetupPageHeaderProps {
@@ -31,12 +31,12 @@ const props = withDefaults(defineProps<SetupPageHeaderProps>(), {
 const emit = defineEmits<{
   back: [];
 }>();
-const attrs = useAttrs();
+const instance = getCurrentInstance();
 
 const router = useRouter();
 
 const goBack = () => {
-  if ("onBack" in attrs) {
+  if (instance?.vnode.props?.onBack) {
     emit("back");
     return;
   }
@@ -48,7 +48,7 @@ const goBack = () => {
 <style scoped>
 .header-content {
   display: grid;
-  grid-template-columns: 56px 1fr 56px;
+  grid-template-columns: 56px minmax(0, 1fr) minmax(56px, auto);
   align-items: center;
 }
 
@@ -61,5 +61,6 @@ const goBack = () => {
 .header-actions {
   display: flex;
   justify-content: flex-end;
+  min-width: 56px;
 }
 </style>

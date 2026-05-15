@@ -59,7 +59,7 @@ const avatarMap: Record<string, string> = {
   vogt,
 }
 
-export const getAvatarUrl = (name: string): string => {
-  const key = name.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+export const getPlayerAvatarUrl = (avatarKey: string): string => {
+  const key = avatarKey.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
   return avatarMap[key] ?? fallback
 }

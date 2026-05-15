@@ -2,7 +2,6 @@ import { defineStore } from "pinia";
 import { computed, ref } from "vue";
 import { FODINHA_DEFAULT_LIVES } from "@/modules/fodinha/constants/fodinha.constants";
 import type { FodinhaPlayer, FodinhaSetupPayload } from "@/modules/fodinha/types/fodinha.types";
-import { useRankingStore } from "@/modules/ranking/store/useRankingStore";
 
 export const useFodinhaStore = defineStore(
   "fodinha",
@@ -10,21 +9,31 @@ export const useFodinhaStore = defineStore(
     const players = ref<FodinhaPlayer[]>([]);
     const initialLives = ref(FODINHA_DEFAULT_LIVES);
     const eliminationCounter = ref(0);
+    const matchId = ref<string | null>(null);
+    const roomCode = ref<string | null>(null);
+    const hostToken = ref<string | null>(null);
 
     const hasGame = computed(() => players.value.length > 0);
     const activePlayers = computed(() => players.value.filter((p) => !p.isEliminated));
     const winner = computed(() => (activePlayers.value.length === 1 ? activePlayers.value[0] : null));
 
     const setup = (payload: FodinhaSetupPayload) => {
+      matchId.value = payload.matchId;
+      roomCode.value = payload.roomCode;
+      hostToken.value = payload.hostToken;
       initialLives.value = payload.initialLives;
       eliminationCounter.value = 0;
-      players.value = payload.players.map((p) => ({
-        id: p.id,
-        name: p.name,
-        lives: payload.initialLives,
-        isEliminated: false,
-        eliminationOrder: undefined,
-      }));
+      players.value = [...payload.players]
+        .sort((a, b) => a.name.localeCompare(b.name, "pt-BR"))
+        .map((p) => ({
+          id: p.id,
+          name: p.name,
+          avatarKey: p.avatarKey,
+          title: p.title,
+          lives: payload.initialLives,
+          isEliminated: false,
+          eliminationOrder: undefined,
+        }));
     };
 
     const removeLife = (playerId: string) => {
@@ -39,15 +48,6 @@ export const useFodinhaStore = defineStore(
         eliminationCounter.value += 1;
         player.eliminationOrder = eliminationCounter.value;
 
-        // Verifica vencedor
-        const active = players.value.filter((p) => !p.isEliminated);
-        if (active.length === 1 && active[0]) {
-          const rankingStore = useRankingStore();
-          rankingStore.registerFodinhaResult(
-            players.value.map((p) => ({ id: p.id, name: p.name })),
-            active[0].id
-          );
-        }
       }
     };
 
@@ -72,16 +72,34 @@ export const useFodinhaStore = defineStore(
       eliminationCounter.value = 0;
     };
 
+    const syncLives = (livesByPlayerId: Record<string, number>) => {
+      players.value = players.value.map((player) => {
+        const lives = livesByPlayerId[player.id] ?? player.lives;
+
+        return {
+          ...player,
+          lives,
+          isEliminated: lives <= 0,
+        };
+      });
+    };
+
     const clear = () => {
       players.value = [];
       initialLives.value = FODINHA_DEFAULT_LIVES;
       eliminationCounter.value = 0;
+      matchId.value = null;
+      roomCode.value = null;
+      hostToken.value = null;
     };
 
     return {
       players,
       initialLives,
       eliminationCounter,
+      matchId,
+      roomCode,
+      hostToken,
       hasGame,
       activePlayers,
       winner,
@@ -89,13 +107,14 @@ export const useFodinhaStore = defineStore(
       removeLife,
       addLife,
       reset,
+      syncLives,
       clear,
     };
   },
   {
     persist: {
       key: "fodinha",
-      pick: ["players", "initialLives", "eliminationCounter"],
+      pick: ["players", "initialLives", "eliminationCounter", "matchId", "roomCode", "hostToken"],
     },
   }
 );

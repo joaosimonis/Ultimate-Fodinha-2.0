@@ -10,16 +10,19 @@
             <span>{{ player.name }}</span>
           </div>
         </div>
+        <v-alert v-if="finishError" type="error" variant="tonal" density="compact" class="mb-4 text-left">
+          {{ finishError }}
+        </v-alert>
         <div class="d-flex flex-column ga-3">
-          <v-btn color="secondary" variant="flat" rounded="lg" size="large" @click="$emit('new-game')">
+          <v-btn v-if="isHost" color="secondary" variant="flat" rounded="lg" size="large" :disabled="isFinishing || isStartingRematch" :loading="isStartingRematch" @click="$emit('new-game')">
             <v-icon start icon="mdi-refresh" />
             <span>Revanche</span>
           </v-btn>
-          <v-btn color="surface-variant" variant="tonal" rounded="lg" size="large" @click="$emit('reconfigure')">
+          <v-btn v-if="isHost" color="surface-variant" variant="tonal" rounded="lg" size="large" :disabled="isFinishing || isStartingRematch" @click="$emit('reconfigure')">
             <v-icon start icon="mdi-cog" />
             <span>Novo jogo</span>
           </v-btn>
-          <v-btn class="winner-dialog__home-btn" variant="outlined" color="medium-emphasis" rounded="lg" size="large" @click="$emit('go-home')">
+          <v-btn class="winner-dialog__home-btn" variant="outlined" color="medium-emphasis" rounded="lg" size="large" :disabled="isFinishing || isStartingRematch" @click="$emit('go-home')">
             <v-icon start icon="mdi-home" />
             <span>Início</span>
           </v-btn>
@@ -37,9 +40,15 @@ interface FodinhaWinnerDialogProps {
   modelValue: boolean;
   winner: FodinhaPlayer | null;
   topThree: FodinhaPlayer[];
+  finishError?: string;
+  isFinishing?: boolean;
+  isStartingRematch?: boolean;
+  isHost?: boolean;
 }
 
-defineProps<FodinhaWinnerDialogProps>();
+withDefaults(defineProps<FodinhaWinnerDialogProps>(), {
+  isHost: false,
+});
 defineEmits<{
   "update:modelValue": [value: boolean];
   "new-game": [];

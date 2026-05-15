@@ -4,8 +4,20 @@
 
     <v-container class="flex-grow-1 py-4">
       <div class="game-wrapper mx-auto">
+        <RoomStatusBar class="mb-4" :room-code="trucoStore.roomCode" :is-host="isHost" :status="roomSocket.status.value" :viewer-count="roomSocket.viewerCount.value" />
+
         <div class="d-flex flex-column ga-4 mb-6">
-          <TrucoTeamCard v-for="(team, index) in trucoStore.teams" :key="team.id" :team="team" :team-number="index + 1" :max-score="trucoStore.maxScore" :color="index === 0 ? 'primary' : 'error'" @add-point="trucoStore.addPoint(team.id)" @remove-point="trucoStore.removePoint(team.id)" />
+          <TrucoTeamCard
+            v-for="(team, index) in trucoStore.teams"
+            :key="team.id"
+            :team="team"
+            :team-number="index + 1"
+            :max-score="trucoStore.maxScore"
+            :color="index === 0 ? 'primary' : 'error'"
+            :readonly="!canControlRoom"
+            @add-point="addPoint(team.id)"
+            @remove-point="removePoint(team.id)"
+          />
         </div>
       </div>
     </v-container>
@@ -14,7 +26,7 @@
     <v-dialog v-model="confirmExit" max-width="320">
       <v-card rounded="lg">
         <v-card-title class="pt-5 px-5">Sair da partida?</v-card-title>
-        <v-card-text class="px-5">O progresso será perdido.</v-card-text>
+        <v-card-text class="px-5">Você poderá voltar enquanto a partida estiver salva neste dispositivo.</v-card-text>
         <v-card-actions class="px-5 pb-5 ga-2">
           <v-btn variant="tonal" rounded="lg" @click="confirmExit = false">Cancelar</v-btn>
           <v-btn color="error" variant="flat" rounded="lg" @click="exitGame">Sair</v-btn>
@@ -49,18 +61,29 @@
             </div>
           </div>
 
-          <div class="d-flex flex-column ga-3">
-            <v-btn color="primary" variant="flat" rounded="lg" size="large" @click="newGameSameTeams">
+          <v-alert v-if="finishError" type="error" variant="tonal" density="compact" class="mb-4 text-left">
+            {{ finishError }}
+          </v-alert>
+
+          <div v-if="isHost" class="d-flex flex-column ga-3">
+            <v-btn color="primary" variant="flat" rounded="lg" size="large" :disabled="isFinishing || isStartingRematch" :loading="isStartingRematch" @click="newGameSameTeams">
               <v-icon start icon="mdi-refresh" />
+              <span>Revanche</span>
+            </v-btn>
+            <v-btn color="surface-variant" variant="tonal" rounded="lg" size="large" :disabled="isFinishing || isStartingRematch" @click="reconfigure">
+              <v-icon start icon="mdi-cog" />
               <span>Novo jogo</span>
             </v-btn>
-            <v-btn color="surface-variant" variant="tonal" rounded="lg" size="large" @click="reconfigure">
-              <v-icon start icon="mdi-cog" />
-              <span>Reconfigurar</span>
-            </v-btn>
-            <v-btn class="winner-dialog__home-btn" variant="outlined" color="medium-emphasis" rounded="lg" size="large" @click="goHome">
+            <v-btn class="winner-dialog__home-btn" variant="outlined" color="medium-emphasis" rounded="lg" size="large" :disabled="isFinishing || isStartingRematch" @click="goHome">
               <v-icon start icon="mdi-home" />
               <span>Início</span>
+            </v-btn>
+          </div>
+
+          <div v-else class="d-flex flex-column ga-3">
+            <v-btn class="winner-dialog__home-btn" variant="outlined" color="medium-emphasis" rounded="lg" size="large" @click="goHome">
+              <v-icon start icon="mdi-home" />
+              <span>Ir para início</span>
             </v-btn>
           </div>
         </v-card-text>
@@ -72,19 +95,26 @@
 <script setup lang="ts">
 import { computed, ref, watch, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import { getApiErrorMessage } from "@/api/error";
+import { matchesApi } from "@/modules/matches/api";
 import SetupHeader from "@/shared/components/SetupHeader.vue";
 import WinnerHero from "@/shared/components/WinnerHero.vue";
 import TrucoTeamCard from "@/modules/truco/components/TrucoTeamCard.vue";
 import { useTrucoStore } from "@/modules/truco/store/useTrucoStore";
+import { useRoomSocket } from "@/modules/rooms/composables/useRoomSocket";
 import { useWakeLock } from "@/shared/composables/useWakeLock";
 import { useConfetti } from "@/shared/composables/useConfetti";
+import RoomStatusBar from "@/shared/components/RoomStatusBar.vue";
 import temaDaVitoriaAudio from "@/assets/audios/vitoria/tema-da-vitoria.mp3";
 
 const router = useRouter();
 const trucoStore = useTrucoStore();
+const roomSocket = useRoomSocket();
 
 const teamOne = computed(() => trucoStore.teams[0] ?? null);
 const teamTwo = computed(() => trucoStore.teams[1] ?? null);
+const isHost = computed(() => Boolean(trucoStore.hostToken));
+const canControlRoom = computed(() => isHost.value && roomSocket.status.value === "connected");
 
 const { fireConfetti } = useConfetti();
 const { request } = useWakeLock();
@@ -92,17 +122,106 @@ const victoryAudio = new Audio(temaDaVitoriaAudio);
 victoryAudio.volume = 1;
 
 const confirmExit = ref(false);
+const isFinishing = ref(false);
+const isStartingRematch = ref(false);
+const finishError = ref("");
 const exitGame = () => {
   confirmExit.value = false;
-  trucoStore.clear();
   router.push({ name: "home" });
 };
 
 const showWinner = ref(Boolean(trucoStore.winner));
 
-const newGameSameTeams = () => {
-  trucoStore.reset();
-  showWinner.value = false;
+const getScoresByTeamName = () =>
+  trucoStore.teams.reduce<Record<string, number>>((scoresByTeamName, team) => {
+    scoresByTeamName[trucoStore.teamName(team)] = team.score;
+    return scoresByTeamName;
+  }, {});
+
+const publishScores = () => {
+  if (!trucoStore.hostToken) return;
+
+  roomSocket.sendRoomState(
+    {
+      mode: "truco",
+      scores: getScoresByTeamName(),
+    },
+    trucoStore.hostToken
+  );
+};
+
+const addPoint = (teamId: string) => {
+  trucoStore.addPoint(teamId);
+  publishScores();
+};
+
+const removePoint = (teamId: string) => {
+  trucoStore.removePoint(teamId);
+  publishScores();
+};
+
+const finishMatch = async () => {
+  if (!trucoStore.matchId || !trucoStore.hostToken || isFinishing.value || trucoStore.teams.length !== 2) return;
+
+  isFinishing.value = true;
+  finishError.value = "";
+
+  try {
+    await matchesApi.finish(trucoStore.matchId, {
+      teams: trucoStore.teams.map((team) => ({
+        team_name: trucoStore.teamName(team),
+        final_score: team.score,
+      })),
+    });
+  } catch (error) {
+    finishError.value = getApiErrorMessage(error);
+  } finally {
+    isFinishing.value = false;
+  }
+};
+
+const newGameSameTeams = async () => {
+  if (isFinishing.value || isStartingRematch.value || trucoStore.teams.length !== 2) return;
+
+  const rematchTeams = trucoStore.teams.map((team) => ({
+    name: trucoStore.teamName(team),
+    players: team.players,
+  }));
+
+  isStartingRematch.value = true;
+  finishError.value = "";
+
+  try {
+    const match = await matchesApi.create({
+      mode: "truco",
+      max_score: trucoStore.maxScore,
+    });
+
+    await matchesApi.addPlayers(match.id, {
+      players: rematchTeams.flatMap((team) =>
+        team.players.map((player) => ({
+          player_id: player.id,
+          team_name: team.name,
+        }))
+      ),
+    });
+
+    trucoStore.setup({
+      teams: rematchTeams,
+      maxScore: trucoStore.maxScore,
+      mode: trucoStore.mode,
+      matchId: match.id,
+      roomCode: match.room_code,
+      hostToken: match.host_token ?? "",
+    });
+
+    showWinner.value = false;
+    router.replace({ name: "truco-game", params: { roomCode: match.room_code } });
+  } catch (error) {
+    finishError.value = getApiErrorMessage(error);
+  } finally {
+    isStartingRematch.value = false;
+  }
 };
 
 const reconfigure = () => {
@@ -118,10 +237,20 @@ const goHome = () => {
 };
 
 watch(
+  () => roomSocket.liveState.value?.scores,
+  (scores) => {
+    if (scores) {
+      trucoStore.syncScores(scores);
+    }
+  }
+);
+
+watch(
   () => trucoStore.winner,
   (winner) => {
     if (winner) {
       showWinner.value = true;
+      void finishMatch();
       fireConfetti();
       void victoryAudio.play().catch(() => {
         // Ignore playback errors and keep winner flow responsive.
@@ -132,6 +261,10 @@ watch(
 
 onMounted(() => {
   void request();
+
+  if (trucoStore.roomCode) {
+    roomSocket.connect(trucoStore.roomCode);
+  }
 });
 </script>
 

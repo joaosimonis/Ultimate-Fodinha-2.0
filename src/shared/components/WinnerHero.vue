@@ -4,7 +4,7 @@
       <!-- Coroa única (Fodinha - 1 jogador) -->
       <LottieAnimation v-if="winners.length === 1" :src="CrownAnimation" :size="80" :autoplay="true" :loop="true" class="winner-hero__crown" />
       <v-avatar v-if="winners.length === 1" size="96" class="winner-hero__avatar">
-        <v-img :src="getAvatarUrl(winners[0] ?? '')" :alt="winners[0] ?? ''" />
+        <v-img :src="getPlayerAvatarUrl(winners[0] ?? '')" :alt="winners[0] ?? ''" />
       </v-avatar>
 
       <!-- Múltiplos jogadores (Truco) -->
@@ -12,7 +12,7 @@
         <div v-for="name in winners" :key="name" class="winner-hero__single">
           <LottieAnimation :src="CrownAnimation" :size="60" :autoplay="true" :loop="true" class="winner-hero__crown" />
           <v-avatar size="72" class="winner-hero__avatar">
-            <v-img :src="getAvatarUrl(name)" :alt="name" />
+            <v-img :src="getPlayerAvatarUrl(name)" :alt="name" />
           </v-avatar>
         </div>
       </div>
@@ -27,7 +27,7 @@
 <script setup lang="ts">
 import LottieAnimation from "@/shared/components/LottieAnimation.vue";
 import CrownAnimation from "@/assets/animation/Crown.json";
-import { getAvatarUrl } from "@/shared/utils/avatar";
+import { getPlayerAvatarUrl } from "@/shared/utils/avatar";
 
 interface WinnerHeroProps {
   winnerName: string;

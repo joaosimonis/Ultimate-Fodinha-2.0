@@ -1,6 +1,7 @@
 <template>
   <div class="home-page d-flex flex-column">
     <AppHeader />
+
     <v-container class="content flex-grow-1 d-flex align-center justify-center">
       <div class="home-wrapper text-center">
         <h1 class="text-h4 font-weight-bold mb-2">Ultimate Fodinha 2.0</h1>
@@ -14,13 +15,17 @@
             <v-icon start icon="mdi-cards-spade" /> 
             <span>Fodinha</span>
           </v-btn>
+          <v-btn block class="text-white" color="deep-purple" rounded="lg" size="x-large" @click="goToRooms">
+            <v-icon start icon="mdi-lan-connect" />
+            <span>Partidas em andamento</span>
+          </v-btn>
           <v-btn block class="text-white" color="amber-darken-1" rounded="lg" size="x-large" @click="goToRanking">
             <v-icon start icon="mdi-trophy" />
             <span>Ranking</span>
           </v-btn>
           <v-btn block class="text-white" color="teal-darken-2" rounded="lg" size="x-large" @click="goToPlayers">
-            <v-icon start icon="mdi-account-plus" />
-            <span>Adicionar jogadores</span>
+            <v-icon start icon="mdi-account-group" />
+            <span>Personagens</span>
           </v-btn>
         </div>
         <div class="mt-8">
@@ -28,6 +33,7 @@
         </div>
       </div>
     </v-container>
+
     <AppFooter />
   </div>
 </template>
@@ -43,6 +49,7 @@ const router = useRouter();
 
 const goToTruco = () => router.push({ name: "truco-setup" });
 const goToFodinha = () => router.push({ name: "fodinha-setup" });
+const goToRooms = () => router.push({ name: "rooms" });
 const goToRanking = () => router.push({ name: "ranking" });
 const goToPlayers = () => router.push({ name: "players" });
 
