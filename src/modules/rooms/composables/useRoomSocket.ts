@@ -3,8 +3,8 @@ import type { MatchLiveStateResponse, MatchResponse } from "@/modules/matches/ty
 import type { RoomSocketMessage, RoomSocketStatus, RoomStateUpdateRequest, RoomViewerCountPayload } from "@/modules/rooms/types/roomSocket.types";
 
 const buildRoomSocketUrl = (roomCode: string): string => {
-  const baseUrl = (import.meta.env.VITE_WS_BASE_URL ?? "ws://localhost:8080").replace(/\/$/, "");
-  return `${baseUrl}/api/v1/ws/rooms/${encodeURIComponent(roomCode)}`;
+  const baseUrl = (import.meta.env.VITE_WS_BASE_URL ?? "wss://ultimate-fodinha-api.onrender.com/api/v1").replace(/\/$/, "");
+  return `${baseUrl}/ws/rooms/${encodeURIComponent(roomCode)}`;
 };
 
 const parseSocketMessage = (data: string): RoomSocketMessage => {

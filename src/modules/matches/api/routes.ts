@@ -1,8 +1,8 @@
 export const routes = {
-  list: "/api/v1/matches",
-  getById: (id: string) => `/api/v1/matches/${id}`,
-  create: "/api/v1/matches",
-  addPlayers: (id: string) => `/api/v1/matches/${id}/players`,
-  finish: (id: string) => `/api/v1/matches/${id}/finish`,
-  getRoomByCode: (roomCode: string) => `/api/v1/rooms/${roomCode}`,
+  list: "/matches",
+  getById: (id: string) => `/matches/${id}`,
+  create: "/matches",
+  addPlayers: (id: string) => `/matches/${id}/players`,
+  finish: (id: string) => `/matches/${id}/finish`,
+  getRoomByCode: (roomCode: string) => `/rooms/${roomCode}`,
 };
