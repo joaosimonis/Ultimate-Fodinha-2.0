@@ -1,5 +1,6 @@
 import { api } from "@/api/http";
 import type { ApiDataResponse } from "@/api/types/api.types";
+import { getAdminAuthHeaders } from "@/modules/auth/helpers/adminAuthHeaders";
 import { routes } from "@/modules/matches/api/routes";
 import type {
   AddMatchPlayersRequest,
@@ -39,6 +40,13 @@ export const matchesApi = {
 
   async finish(matchId: string, payload: FinishMatchRequest): Promise<MatchResponse> {
     const response = await api.patch<ApiDataResponse<MatchResponse>>(routes.finish(matchId), payload);
+    return response.data;
+  },
+
+  async cancelByRoomCode(roomCode: string): Promise<MatchResponse> {
+    const response = await api.patch<ApiDataResponse<MatchResponse>>(routes.cancelByRoomCode(roomCode), undefined, {
+      headers: getAdminAuthHeaders(),
+    });
     return response.data;
   },
 };

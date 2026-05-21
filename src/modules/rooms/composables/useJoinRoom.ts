@@ -24,6 +24,10 @@ export function useJoinRoom() {
   };
 
   const assertOngoingRoom = (room: MatchResponse) => {
+    if (room.status === "cancelled") {
+      throw new Error("Essa partida foi cancelada pelo admin.");
+    }
+
     if (room.status !== "ongoing") {
       throw new Error("Essa partida já foi finalizada.");
     }

@@ -1,90 +1,168 @@
 <template>
   <div class="admin-players-page d-flex flex-column">
-    <SetupHeader title="Admin" title-icon="mdi-shield-key" @back="goHome">
-      <template #actions>
-        <v-btn icon variant="text" size="large" aria-label="Adicionar jogador" @click="addDialog = true">
-          <v-icon icon="mdi-plus" size="28" />
-        </v-btn>
-      </template>
-    </SetupHeader>
+    <SetupHeader title="Admin" title-icon="mdi-shield-key" @back="goHome" />
 
     <v-container class="flex-grow-1 py-6">
-      <div class="players-wrapper mx-auto">
-        <div v-if="playersStore.error" class="text-center py-12">
-          <v-icon icon="mdi-alert-circle-outline" size="64" class="text-error mb-4" />
-          <p class="text-subtitle-1 font-weight-bold mb-1">Não foi possível carregar jogadores</p>
-          <p class="text-caption text-medium-emphasis mb-6">{{ playersStore.error }}</p>
-          <v-btn color="secondary" rounded="lg" @click="loadPlayers">
-            <v-icon start icon="mdi-refresh" />
-            Tentar novamente
-          </v-btn>
-        </div>
+      <div class="admin-wrapper mx-auto">
+        <v-alert v-if="pageError" type="error" variant="tonal" density="comfortable" class="mb-4">
+          {{ pageError }}
+        </v-alert>
 
-        <div v-else-if="playersStore.players.length === 0" class="text-center py-12">
-          <v-icon icon="mdi-account-group-outline" size="64" class="text-medium-emphasis mb-4" />
-          <p class="text-subtitle-1 font-weight-bold mb-1">Nenhum jogador cadastrado</p>
-          <p class="text-caption text-medium-emphasis mb-6">Use o botão de adicionar para cadastrar o primeiro personagem.</p>
-        </div>
+        <v-alert v-if="pageSuccess" type="success" variant="tonal" density="comfortable" class="mb-4">
+          {{ pageSuccess }}
+        </v-alert>
 
-        <div v-else class="players-grid">
-          <v-slide-y-transition group>
-            <div v-for="player in playersStore.players" :key="player.id" class="player-card-wrapper">
-              <div class="player-card text-center" @click="goToProfile(player.id)">
-                <div class="avatar-wrapper">
-                  <v-avatar size="72">
-                    <v-img :src="getPlayerAvatarUrl(player.avatarKey)" :alt="player.name" />
-                  </v-avatar>
+        <v-list class="admin-actions" bg-color="transparent" lines="two">
+          <v-list-item rounded="lg" class="admin-action" @click="openAddPlayer">
+            <template #prepend>
+              <v-avatar color="secondary" variant="tonal" size="44">
+                <v-icon icon="mdi-account-plus" />
+              </v-avatar>
+            </template>
+            <v-list-item-title>Adicionar jogador</v-list-item-title>
+            <v-list-item-subtitle>Cadastrar um novo jogador para seleção nas partidas.</v-list-item-subtitle>
+            <template #append>
+              <v-icon icon="mdi-chevron-right" class="text-medium-emphasis" />
+            </template>
+          </v-list-item>
 
-                  <v-btn icon variant="flat" color="error" size="x-small" class="delete-btn" :disabled="isDeleting" @click.stop="confirmDelete(player)">
-                    <v-icon icon="mdi-close" size="10" />
-                  </v-btn>
-                </div>
+          <v-list-item rounded="lg" class="admin-action" :disabled="playersStore.isLoading" @click="openDeletePlayer">
+            <template #prepend>
+              <v-avatar color="error" variant="tonal" size="44">
+                <v-icon icon="mdi-account-remove" />
+              </v-avatar>
+            </template>
+            <v-list-item-title>Excluir jogador</v-list-item-title>
+            <v-list-item-subtitle>Remover um jogador cadastrado da lista.</v-list-item-subtitle>
+            <template #append>
+              <v-icon icon="mdi-chevron-right" class="text-medium-emphasis" />
+            </template>
+          </v-list-item>
 
-                <p class="text-caption font-weight-bold mt-1 text-truncate">{{ player.name }}</p>
-              </div>
-            </div>
-          </v-slide-y-transition>
-        </div>
+          <v-list-item rounded="lg" class="admin-action" @click="openCancelMatch">
+            <template #prepend>
+              <v-avatar color="warning" variant="tonal" size="44">
+                <v-icon icon="mdi-cancel" />
+              </v-avatar>
+            </template>
+            <v-list-item-title>Cancelar partida</v-list-item-title>
+            <v-list-item-subtitle>Anular uma sala em andamento ou finalizada pelo código.</v-list-item-subtitle>
+            <template #append>
+              <v-icon icon="mdi-chevron-right" class="text-medium-emphasis" />
+            </template>
+          </v-list-item>
+        </v-list>
       </div>
     </v-container>
 
     <AdminAddPlayerDialog v-model="addDialog" />
 
-    <v-dialog v-model="deleteDialog" max-width="320">
+    <v-dialog v-model="deleteDialog" max-width="380">
       <v-card rounded="lg">
-        <v-card-title class="pt-5 px-5">Remover jogador?</v-card-title>
+        <v-card-title class="pt-5 px-5">Excluir jogador</v-card-title>
         <v-card-text class="px-5">
-          <span class="font-weight-bold">{{ playerToDelete?.name }}</span> será removido da lista.
+          <v-alert v-if="playersStore.error" type="error" variant="tonal" density="compact" class="mb-4">
+            {{ playersStore.error }}
+          </v-alert>
+
+          <v-select
+            v-model="selectedPlayerId"
+            :items="playersStore.players"
+            item-title="name"
+            item-value="id"
+            label="Jogador"
+            variant="outlined"
+            density="comfortable"
+            hide-details="auto"
+            :disabled="isDeleting || playersStore.isLoading"
+            :loading="playersStore.isLoading"
+            no-data-text="Nenhum jogador cadastrado"
+          />
+
+          <p v-if="selectedPlayer" class="text-caption text-medium-emphasis mt-3">
+            {{ selectedPlayer.name }} será removido da lista de jogadores.
+          </p>
         </v-card-text>
         <v-card-actions class="px-5 pb-5 ga-2">
           <v-btn variant="tonal" rounded="lg" :disabled="isDeleting" @click="deleteDialog = false">Cancelar</v-btn>
-          <v-btn color="error" variant="flat" rounded="lg" :loading="isDeleting" @click="deletePlayer">Remover</v-btn>
+          <v-btn color="error" variant="flat" rounded="lg" :disabled="!selectedPlayerId" :loading="isDeleting" @click="deletePlayer">Excluir</v-btn>
         </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="cancelMatchDialog" max-width="380">
+      <v-card rounded="lg">
+        <v-form @submit.prevent="cancelMatch">
+          <v-card-title class="pt-5 px-5">Cancelar partida</v-card-title>
+          <v-card-text class="px-5">
+            <v-alert v-if="cancelMatchError" type="error" variant="tonal" density="compact" class="mb-4">
+              {{ cancelMatchError }}
+            </v-alert>
+
+            <v-alert v-if="cancelledMatch" type="success" variant="tonal" density="compact" class="mb-4">
+              Sala {{ cancelledMatch.room_code }} cancelada.
+            </v-alert>
+
+            <v-text-field
+              v-model="cancelRoomCode"
+              label="Código da sala"
+              variant="outlined"
+              density="comfortable"
+              hide-details="auto"
+              autofocus
+              :disabled="isCancellingMatch"
+              :maxlength="12"
+            />
+
+            <p class="text-caption text-medium-emphasis mt-3">
+              A partida ficará com status cancelado e não contará no ranking.
+            </p>
+          </v-card-text>
+          <v-card-actions class="px-5 pb-5 ga-2">
+            <v-btn variant="tonal" rounded="lg" :disabled="isCancellingMatch" @click="cancelMatchDialog = false">Fechar</v-btn>
+            <v-btn color="warning" variant="flat" rounded="lg" type="submit" :disabled="!cancelRoomCode.trim()" :loading="isCancellingMatch">Cancelar partida</v-btn>
+          </v-card-actions>
+        </v-form>
       </v-card>
     </v-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
+import { getApiErrorMessage } from "@/api/error";
 import AdminAddPlayerDialog from "@/modules/auth/components/AdminAddPlayerDialog.vue";
-import type { RegisteredPlayer } from "@/modules/players/types/players.types";
+import { matchesApi } from "@/modules/matches/api";
+import type { MatchResponse } from "@/modules/matches/types/matches.types";
 import SetupHeader from "@/shared/components/SetupHeader.vue";
 import { usePlayersStore } from "@/shared/store/usePlayersStore";
-import { getPlayerAvatarUrl } from "@/shared/utils/avatar";
 
 const router = useRouter();
 const playersStore = usePlayersStore();
 
 const addDialog = ref(false);
 const deleteDialog = ref(false);
-const playerToDelete = ref<RegisteredPlayer | null>(null);
+const selectedPlayerId = ref<string | null>(null);
 const isDeleting = ref(false);
+const cancelMatchDialog = ref(false);
+const cancelRoomCode = ref("");
+const isCancellingMatch = ref(false);
+const cancelMatchError = ref("");
+const cancelledMatch = ref<MatchResponse | null>(null);
+const pageError = ref("");
+const pageSuccess = ref("");
+
+const selectedPlayer = computed(() => playersStore.players.find((player) => player.id === selectedPlayerId.value) ?? null);
+
+const clearPageFeedback = () => {
+  pageError.value = "";
+  pageSuccess.value = "";
+};
 
 const loadPlayers = () => {
   void playersStore.loadPlayers().catch(() => {
-    // Error state is already exposed by the store.
+    pageError.value = playersStore.error ?? "Não foi possível carregar jogadores.";
   });
 };
 
@@ -92,28 +170,66 @@ const goHome = () => {
   router.push({ name: "home" });
 };
 
-const goToProfile = (playerId: string) => {
-  router.push({ name: "player-profile", params: { id: playerId } });
+const openAddPlayer = () => {
+  clearPageFeedback();
+  addDialog.value = true;
 };
 
-const confirmDelete = (player: RegisteredPlayer) => {
-  playerToDelete.value = player;
+const openDeletePlayer = () => {
+  clearPageFeedback();
+  selectedPlayerId.value = null;
   deleteDialog.value = true;
+
+  if (!playersStore.hasLoaded) {
+    loadPlayers();
+  }
+};
+
+const openCancelMatch = () => {
+  clearPageFeedback();
+  cancelRoomCode.value = "";
+  cancelMatchError.value = "";
+  cancelledMatch.value = null;
+  cancelMatchDialog.value = true;
 };
 
 const deletePlayer = async () => {
-  if (!playerToDelete.value || isDeleting.value) return;
+  const player = selectedPlayer.value;
+  if (!player || isDeleting.value) return;
 
   isDeleting.value = true;
+  clearPageFeedback();
 
   try {
-    await playersStore.removePlayer(playerToDelete.value.id);
-  } catch {
-    // Error state is already exposed by the store.
-  } finally {
+    await playersStore.removePlayer(player.id);
+    pageSuccess.value = `${player.name} foi excluído.`;
     deleteDialog.value = false;
-    playerToDelete.value = null;
+    selectedPlayerId.value = null;
+  } catch {
+    pageError.value = playersStore.error ?? "Não foi possível excluir o jogador.";
+  } finally {
     isDeleting.value = false;
+  }
+};
+
+const cancelMatch = async () => {
+  const roomCode = cancelRoomCode.value.trim().toUpperCase();
+  if (!roomCode || isCancellingMatch.value) return;
+
+  isCancellingMatch.value = true;
+  cancelMatchError.value = "";
+  cancelledMatch.value = null;
+  clearPageFeedback();
+
+  try {
+    const match = await matchesApi.cancelByRoomCode(roomCode);
+    cancelledMatch.value = match;
+    pageSuccess.value = `Sala ${match.room_code} cancelada.`;
+    cancelRoomCode.value = match.room_code;
+  } catch (error) {
+    cancelMatchError.value = getApiErrorMessage(error);
+  } finally {
+    isCancellingMatch.value = false;
   }
 };
 
@@ -125,37 +241,19 @@ onMounted(loadPlayers);
   height: 100%;
 }
 
-.players-wrapper {
+.admin-wrapper {
   max-width: 480px;
   width: 100%;
 }
 
-.players-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+.admin-actions {
+  display: flex;
+  flex-direction: column;
   gap: 12px;
 }
 
-.player-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.avatar-wrapper {
-  position: relative;
-}
-
-.delete-btn {
-  position: absolute;
-  top: -2px;
-  right: -2px;
-  width: 18px !important;
-  height: 18px !important;
-}
-
-.player-card-wrapper {
-  display: flex;
-  justify-content: center;
+.admin-action {
+  background: rgb(var(--v-theme-surface));
+  border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
 }
 </style>
