@@ -1,5 +1,5 @@
 export type MatchMode = "fodinha" | "truco";
-export type MatchStatus = "ongoing" | "finished";
+export type MatchStatus = "ongoing" | "finished" | "cancelled";
 
 export interface MatchPlayerResponse {
   id: string;
@@ -29,6 +29,7 @@ export interface MatchResponse {
   live_state?: MatchLiveStateResponse;
   created_at: string;
   finished_at?: string;
+  cancelled_at?: string;
   players?: MatchPlayerResponse[];
 }
 

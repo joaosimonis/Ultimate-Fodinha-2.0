@@ -7,5 +7,6 @@ export interface ApiMessageResponse {
 }
 
 export interface ApiErrorResponse {
-  error: string;
+  error?: string;
+  message?: string;
 }
