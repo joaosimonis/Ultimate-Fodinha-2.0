@@ -101,6 +101,8 @@ import SetupHeader from "@/shared/components/SetupHeader.vue";
 import WinnerHero from "@/shared/components/WinnerHero.vue";
 import TrucoTeamCard from "@/modules/truco/components/TrucoTeamCard.vue";
 import { useTrucoStore } from "@/modules/truco/store/useTrucoStore";
+import type { TrucoTeam } from "@/modules/truco/types/truco.types";
+import { applyMatchTeamIds } from "@/modules/truco/utils/trucoMatchTeams";
 import { useRoomSocket } from "@/modules/rooms/composables/useRoomSocket";
 import { useWakeLock } from "@/shared/composables/useWakeLock";
 import { useConfetti } from "@/shared/composables/useConfetti";
@@ -132,11 +134,32 @@ const exitGame = () => {
 
 const showWinner = ref(Boolean(trucoStore.winner));
 
-const getScoresByTeamName = () =>
-  trucoStore.teams.reduce<Record<string, number>>((scoresByTeamName, team) => {
-    scoresByTeamName[trucoStore.teamName(team)] = team.score;
-    return scoresByTeamName;
+const getScoresByTeamId = () =>
+  trucoStore.teams.reduce<Record<string, number>>((scoresByTeamId, team) => {
+    if (team.apiId) {
+      scoresByTeamId[team.apiId] = team.score;
+    }
+
+    return scoresByTeamId;
   }, {});
+
+const buildFinishTeamPayload = (team: TrucoTeam) => {
+  const payload = {
+    final_score: team.score,
+  };
+
+  if (team.apiId) {
+    return {
+      ...payload,
+      team_id: team.apiId,
+    };
+  }
+
+  return {
+    ...payload,
+    team_name: trucoStore.teamName(team),
+  };
+};
 
 const publishScores = () => {
   if (!trucoStore.hostToken) return;
@@ -144,7 +167,7 @@ const publishScores = () => {
   roomSocket.sendRoomState(
     {
       mode: "truco",
-      scores: getScoresByTeamName(),
+      scores: getScoresByTeamId(),
     },
     trucoStore.hostToken
   );
@@ -168,10 +191,7 @@ const finishMatch = async () => {
 
   try {
     await matchesApi.finish(trucoStore.matchId, {
-      teams: trucoStore.teams.map((team) => ({
-        team_name: trucoStore.teamName(team),
-        final_score: team.score,
-      })),
+      teams: trucoStore.teams.map(buildFinishTeamPayload),
     });
   } catch (error) {
     finishError.value = getApiErrorMessage(error);
@@ -197,7 +217,7 @@ const newGameSameTeams = async () => {
       max_score: trucoStore.maxScore,
     });
 
-    await matchesApi.addPlayers(match.id, {
+    const matchWithTeams = await matchesApi.addPlayers(match.id, {
       players: rematchTeams.flatMap((team) =>
         team.players.map((player) => ({
           player_id: player.id,
@@ -207,7 +227,7 @@ const newGameSameTeams = async () => {
     });
 
     trucoStore.setup({
-      teams: rematchTeams,
+      teams: applyMatchTeamIds(matchWithTeams, rematchTeams),
       maxScore: trucoStore.maxScore,
       mode: trucoStore.mode,
       matchId: match.id,

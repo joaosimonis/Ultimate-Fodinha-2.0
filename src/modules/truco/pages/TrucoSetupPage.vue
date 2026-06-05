@@ -77,6 +77,7 @@ import SetupHeader from "@/shared/components/SetupHeader.vue";
 import ChampionSelect from "@/shared/ChampionSelect.vue";
 import { useTrucoStore } from "@/modules/truco/store/useTrucoStore";
 import { TRUCO_MODES, TRUCO_MAX_SCORE_OPTIONS, TRUCO_MAX_SCORE_DEFAULT, TRUCO_PLAYERS_PER_MODE } from "@/modules/truco/constants/truco.constants";
+import { applyMatchTeamIds } from "@/modules/truco/utils/trucoMatchTeams";
 import type { TrucoMode } from "../types/truco.types";
 import type { RegisteredPlayer } from "@/modules/players/types/players.types";
 
@@ -129,7 +130,7 @@ const startGame = async () => {
       max_score: selectedMaxScore.value,
     });
 
-    await matchesApi.addPlayers(match.id, {
+    const matchWithTeams = await matchesApi.addPlayers(match.id, {
       players: [
         ...team1.players.map((player) => ({
           player_id: player.id,
@@ -143,7 +144,7 @@ const startGame = async () => {
     });
 
     trucoStore.setup({
-      teams: [team1, team2],
+      teams: applyMatchTeamIds(matchWithTeams, [team1, team2]),
       maxScore: selectedMaxScore.value,
       mode: selectedMode.value,
       matchId: match.id,

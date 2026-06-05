@@ -26,6 +26,7 @@ const normalizeSetupTeam = (team: TrucoSetupTeam): TrucoSetupTeam => {
   const name = isGeneratedTeamName(team) ? buildGeneratedTeamName(players) : team.name;
 
   return {
+    id: team.id,
     name,
     players,
   };
@@ -58,7 +59,8 @@ export const useTrucoStore = defineStore(
         .map(normalizeSetupTeam)
         .sort((a, b) => a.name.localeCompare(b.name, "pt-BR"))
         .map((t) => ({
-          id: crypto.randomUUID(),
+          id: t.id ?? crypto.randomUUID(),
+          apiId: t.id,
           name: t.name,
           players: t.players,
           score: 0,
@@ -91,10 +93,13 @@ export const useTrucoStore = defineStore(
       history.value = [];
     };
 
-    const syncScores = (scoresByTeamName: Record<string, number>) => {
+    const syncScores = (scoresByTeamKey: Record<string, number>) => {
       teams.value = teams.value.map((team) => ({
         ...team,
-        score: scoresByTeamName[teamName(team)] ?? team.score,
+        score: [team.apiId, team.id, teamName(team)].reduce<number | undefined>(
+          (score, key) => score ?? (key ? scoresByTeamKey[key] : undefined),
+          undefined
+        ) ?? team.score,
       }));
     };
 
