@@ -1,11 +1,13 @@
 import { useRouter } from "vue-router";
 import { useFodinhaStore } from "@/modules/fodinha/store/useFodinhaStore";
 import { matchesApi } from "@/modules/matches/api";
-import type { MatchPlayerResponse, MatchResponse } from "@/modules/matches/types/matches.types";
+import type { MatchResponse } from "@/modules/matches/types/matches.types";
 import type { RegisteredPlayer } from "@/modules/players/types/players.types";
 import { useTrucoStore } from "@/modules/truco/store/useTrucoStore";
 import type { TrucoMode } from "@/modules/truco/types/truco.types";
 import { usePlayersStore } from "@/shared/store/usePlayersStore";
+
+type RoomTrucoTeam = { id?: string; name: string; players: RegisteredPlayer[] };
 
 export function useJoinRoom() {
   const router = useRouter();
@@ -53,22 +55,36 @@ export function useJoinRoom() {
     router.push({ name: "fodinha-game", params: { roomCode: room.room_code } });
   };
 
-  const groupPlayersByTeam = (matchPlayers: MatchPlayerResponse[]) => {
-    const teams = new Map<string, RegisteredPlayer[]>();
+  const groupPlayersByTeam = (room: MatchResponse) => {
+    const teams = new Map<string, RoomTrucoTeam>();
+    const teamNamesById = new Map(room.teams?.map((team) => [team.id, team.team_name]) ?? []);
 
-    matchPlayers.forEach((matchPlayer) => {
-      if (!matchPlayer.team_name) {
+    room.players?.forEach((matchPlayer) => {
+      const teamKey = matchPlayer.team_id ?? matchPlayer.team_name;
+      const teamName = (matchPlayer.team_id ? teamNamesById.get(matchPlayer.team_id) : undefined) ?? matchPlayer.team_name;
+
+      if (!teamKey || !teamName) {
         throw new Error("Não foi possível carregar os times da sala.");
       }
 
-      const teamPlayers = teams.get(matchPlayer.team_name) ?? [];
-      teams.set(matchPlayer.team_name, [...teamPlayers, getRegisteredPlayer(matchPlayer.player_id)]);
+      const team = teams.get(teamKey) ?? {
+        id: matchPlayer.team_id,
+        name: teamName,
+        players: [],
+      };
+
+      teams.set(teamKey, {
+        ...team,
+        players: [...team.players, getRegisteredPlayer(matchPlayer.player_id)],
+      });
     });
 
-    return Array.from(teams.entries()).map(([name, players]) => ({
-      name,
-      players,
-    }));
+    const orderedTeams = room.teams?.map((team) => teams.get(team.id)).filter((team): team is RoomTrucoTeam => Boolean(team)) ?? [];
+    const remainingTeams = Array.from(teams.values()).filter(
+      (team) => !team.id || !room.teams?.some((matchTeam) => matchTeam.id === team.id)
+    );
+
+    return [...orderedTeams, ...remainingTeams];
   };
 
   const getTrucoModeByTeams = (teams: Array<{ players: RegisteredPlayer[] }>): TrucoMode => {
@@ -86,7 +102,7 @@ export function useJoinRoom() {
       throw new Error("Não foi possível carregar os dados da sala.");
     }
 
-    const teams = groupPlayersByTeam(room.players);
+    const teams = groupPlayersByTeam(room);
 
     if (teams.length !== 2 || teams.some((team) => team.players.length < 2)) {
       throw new Error("Não foi possível carregar os times da sala.");

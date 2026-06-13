@@ -7,6 +7,7 @@ export interface TrucoPlayer {
 
 export interface TrucoTeam {
   id: string;
+  apiId?: string;
   name: string;
   players: TrucoPlayer[];
   score: number;
@@ -20,7 +21,7 @@ export interface TrucoMatchHistory {
 }
 
 export interface TrucoSetupPayload {
-  teams: { name: string; players: TrucoPlayer[] }[];
+  teams: { id?: string; name: string; players: TrucoPlayer[] }[];
   maxScore: number;
   mode: TrucoMode;
   matchId: string;

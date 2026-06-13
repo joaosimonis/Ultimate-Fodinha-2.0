@@ -5,9 +5,19 @@ export interface MatchPlayerResponse {
   id: string;
   match_id: string;
   player_id: string;
+  team_id?: string;
   team_name?: string;
   remaining_lives?: number;
   final_score?: number;
+  placement: number | null;
+  is_winner: boolean;
+}
+
+export interface MatchTeamResponse {
+  id: string;
+  match_id: string;
+  team_name: string;
+  final_score: number | null;
   placement: number | null;
   is_winner: boolean;
 }
@@ -31,6 +41,7 @@ export interface MatchResponse {
   finished_at?: string;
   cancelled_at?: string;
   players?: MatchPlayerResponse[];
+  teams?: MatchTeamResponse[];
 }
 
 export interface CreateFodinhaMatchRequest {
@@ -69,7 +80,8 @@ export interface FinishFodinhaMatchRequest {
 }
 
 export interface FinishTrucoMatchTeamRequest {
-  team_name: string;
+  team_id?: string;
+  team_name?: string;
   final_score: number;
 }
 
