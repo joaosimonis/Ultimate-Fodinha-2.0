@@ -4,6 +4,16 @@ Frontend para organizar e acompanhar partidas de Fodinha e Truco, consultar joga
 
 O projeto usa Vue 3, TypeScript, Vuetify 4, Pinia, Vue Router, Axios e Vite. A comunicação com o backend usa HTTP e WebSocket. Também há suporte a instalação como PWA.
 
+## Apresentação
+
+Conheça o app em 30 segundos: Truco, Fodinha, personagens e ranking da turma.
+
+<a href="public/videos/ultimate-fodinha-apresentacao.mp4">
+  <img src="public/videos/ultimate-fodinha-apresentacao-capa.jpg" alt="Assistir à apresentação do Ultimate Fodinha 2.0" width="220" />
+</a>
+
+[Assistir ou baixar o vídeo em MP4](public/videos/ultimate-fodinha-apresentacao.mp4)
+
 ## Executar localmente
 
 Com Node.js compatível com o projeto (use Node 22.12+ da linha 22) e npm:
