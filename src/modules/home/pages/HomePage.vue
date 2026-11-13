@@ -1,49 +1,56 @@
 <template>
   <div class="home-page d-flex flex-column">
-    <AppHeader />
+    <Transition name="home-splash" @after-leave="revealHome">
+      <HomeSplash v-if="isSplashVisible" @complete="finishSplash" />
+    </Transition>
 
-    <v-container class="content flex-grow-1 d-flex align-center justify-center">
-      <div class="home-wrapper text-center">
-        <h1 class="text-h4 font-weight-bold mb-2">Ultimate Fodinha 2.0</h1>
-        <p class="mb-6 text-medium-emphasis">Contador rápido para Truco e Fodinha</p>
-        <div class="d-flex flex-column ga-4">
-          <v-btn block class="text-white" color="primary" rounded="lg" size="x-large" @click="goToTruco">
-            <v-icon start icon="mdi-cards" /> 
-            <span>Truco</span>
-          </v-btn>
-          <v-btn block class="text-white" color="secondary" rounded="lg" size="x-large" @click="goToFodinha">
-            <v-icon start icon="mdi-cards-spade" /> 
-            <span>Fodinha</span>
-          </v-btn>
-          <v-btn block class="text-white" color="deep-purple" rounded="lg" size="x-large" @click="goToRooms">
-            <v-icon start icon="mdi-lan-connect" />
-            <span>Partidas em andamento</span>
-          </v-btn>
-          <v-btn block class="text-white" color="amber-darken-1" rounded="lg" size="x-large" @click="goToRanking">
-            <v-icon start icon="mdi-trophy" />
-            <span>Ranking</span>
-          </v-btn>
-          <v-btn block class="text-white" color="teal-darken-2" rounded="lg" size="x-large" @click="goToPlayers">
-            <v-icon start icon="mdi-account-group" />
-            <span>Personagens</span>
-          </v-btn>
-        </div>
-        <div class="mt-8">
-          <span class="text-caption text-medium-emphasis">Versão 2.0</span>
-        </div>
-      </div>
-    </v-container>
+    <template v-if="isHomeReady">
+      <AppHeader />
 
-    <AppFooter />
+      <v-container class="content flex-grow-1 d-flex align-center justify-center">
+        <div class="home-wrapper text-center">
+          <h1 class="text-h4 font-weight-bold mb-2">Ultimate Fodinha 2.0</h1>
+          <p class="mb-6 text-medium-emphasis">Contador rápido para Truco e Fodinha</p>
+          <div class="d-flex flex-column ga-4">
+            <v-btn block class="text-white" color="primary" rounded="lg" size="x-large" @click="goToTruco">
+              <v-icon start icon="mdi-cards" />
+              <span>Truco</span>
+            </v-btn>
+            <v-btn block class="text-white" color="secondary" rounded="lg" size="x-large" @click="goToFodinha">
+              <v-icon start icon="mdi-cards-spade" />
+              <span>Fodinha</span>
+            </v-btn>
+            <v-btn block class="text-white" color="deep-purple" rounded="lg" size="x-large" @click="goToRooms">
+              <v-icon start icon="mdi-lan-connect" />
+              <span>Partidas em andamento</span>
+            </v-btn>
+            <v-btn block class="text-white" color="amber-darken-1" rounded="lg" size="x-large" @click="goToRanking">
+              <v-icon start icon="mdi-trophy" />
+              <span>Ranking</span>
+            </v-btn>
+            <v-btn block class="text-white" color="teal-darken-2" rounded="lg" size="x-large" @click="goToPlayers">
+              <v-icon start icon="mdi-account-group" />
+              <span>Personagens</span>
+            </v-btn>
+          </div>
+          <div class="mt-8">
+            <span class="text-caption text-medium-emphasis">Versão 2.0</span>
+          </div>
+        </div>
+      </v-container>
+
+      <AppFooter />
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import AppHeader from "@/shared/components/AppHeader.vue";
 import AppFooter from "@/shared/components/AppFooter.vue";
-import messiIntroducaoAudio from "@/assets/audios/messi/messi-introducao.ogg";
+import HomeSplash from "@/modules/home/components/HomeSplash.vue";
+import { useHomeSplash } from "@/modules/home/composables/useHomeSplash";
+import { useHomeIntroAudio } from "@/modules/home/composables/useHomeIntroAudio";
 
 const router = useRouter();
 
@@ -53,43 +60,8 @@ const goToRooms = () => router.push({ name: "rooms" });
 const goToRanking = () => router.push({ name: "ranking" });
 const goToPlayers = () => router.push({ name: "players" });
 
-const introAudio = new Audio(messiIntroducaoAudio);
-introAudio.volume = 1;
-
-const playIntroAudio = () => {
-  void introAudio.play().catch(() => {
-    // Ignore playback errors and wait for user interaction fallback.
-  });
-};
-
-const handleFirstInteraction = () => {
-  playIntroAudio();
-};
-
-const removeInteractionFallback = () => {
-  window.removeEventListener("pointerdown", handleFirstInteraction);
-  window.removeEventListener("keydown", handleFirstInteraction);
-};
-
-let introDelayTimeout: ReturnType<typeof setTimeout> | null = null;
-
-onMounted(() => {
-  introDelayTimeout = setTimeout(() => {
-    void introAudio.play().catch(() => {
-      window.addEventListener("pointerdown", handleFirstInteraction, { once: true });
-      window.addEventListener("keydown", handleFirstInteraction, { once: true });
-    });
-  }, 1000);
-});
-
-onUnmounted(() => {
-  if (introDelayTimeout) {
-    clearTimeout(introDelayTimeout);
-  }
-  removeInteractionFallback();
-  introAudio.pause();
-  introAudio.currentTime = 0;
-});
+const { isSplashVisible, isHomeReady, finishSplash, revealHome } = useHomeSplash();
+useHomeIntroAudio(isHomeReady);
 </script>
 
 <style scoped>
@@ -105,5 +77,19 @@ onUnmounted(() => {
 
 .content {
   padding: 16px;
+}
+
+.home-splash-leave-active {
+  transition: opacity 180ms ease-out;
+}
+
+.home-splash-leave-to {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-splash-leave-active {
+    transition: none;
+  }
 }
 </style>

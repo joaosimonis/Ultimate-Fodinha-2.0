@@ -1,19 +1,19 @@
 import { createRouter, createWebHistory } from "vue-router";
+import { adminAuthStorage } from "@/modules/auth/storage/adminAuthStorage";
 import { useFodinhaStore } from "@/modules/fodinha/store/useFodinhaStore";
 import { useTrucoStore } from "@/modules/truco/store/useTrucoStore";
 
-import HomePage from "@/modules/home/pages/HomePage.vue";
-import TrucoSetupPage from "@/modules/truco/pages/TrucoSetupPage.vue";
-import TrucoGamePage from '@/modules/truco/pages/TrucoGamePage.vue'
-import FodinhaSetupPage from "@/modules/fodinha/pages/FodinhaSetupPage.vue";
-import FodinhaGamePage from "@/modules/fodinha/pages/FodinhaGamePage.vue";
-import RankingPage from "@/modules/ranking/pages/RankingPage.vue";
-import PlayersPage from "@/modules/players/pages/PlayersPage.vue";
-import PlayersProfilePage from "@/modules/players/pages/PlayersProfilePage.vue";
-import RoomsPage from "@/modules/rooms/pages/RoomsPage.vue";
-import RoomEntryPage from "@/modules/rooms/pages/RoomEntryPage.vue";
-import AdminPlayersPage from "@/modules/auth/pages/AdminPlayersPage.vue";
-import { adminAuthStorage } from "@/modules/auth/storage/adminAuthStorage";
+const HomePage = () => import("@/modules/home/pages/HomePage.vue");
+const TrucoSetupPage = () => import("@/modules/truco/pages/TrucoSetupPage.vue");
+const TrucoGamePage = () => import("@/modules/truco/pages/TrucoGamePage.vue");
+const FodinhaSetupPage = () => import("@/modules/fodinha/pages/FodinhaSetupPage.vue");
+const FodinhaGamePage = () => import("@/modules/fodinha/pages/FodinhaGamePage.vue");
+const RankingPage = () => import("@/modules/ranking/pages/RankingPage.vue");
+const PlayersPage = () => import("@/modules/players/pages/PlayersPage.vue");
+const PlayersProfilePage = () => import("@/modules/players/pages/PlayersProfilePage.vue");
+const RoomsPage = () => import("@/modules/rooms/pages/RoomsPage.vue");
+const RoomEntryPage = () => import("@/modules/rooms/pages/RoomEntryPage.vue");
+const AdminPlayersPage = () => import("@/modules/auth/pages/AdminPlayersPage.vue");
 
 const getRouteParam = (param: string | string[] | undefined) => (Array.isArray(param) ? param[0] : param);
 
