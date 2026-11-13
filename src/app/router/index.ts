@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { adminAuthStorage } from "@/modules/auth/storage/adminAuthStorage";
+import { useCounterStore } from "@/modules/counter/store/useCounterStore";
 import { useFodinhaStore } from "@/modules/fodinha/store/useFodinhaStore";
 import { useTrucoStore } from "@/modules/truco/store/useTrucoStore";
 
@@ -21,6 +22,16 @@ const router = createRouter({
   history: createWebHistory(),
   routes: [
     { path: "/", name: "home", component: HomePage },
+
+    { path: "/contador/setup", name: "counter-setup", component: () => import("@/modules/counter/pages/CounterSetupPage.vue") },
+    {
+      path: "/contador/game",
+      name: "counter-game",
+      component: () => import("@/modules/counter/pages/CounterGamePage.vue"),
+      beforeEnter: () => {
+        if (!useCounterStore().hasGame) return { name: "counter-setup" };
+      },
+    },
 
     { path: "/truco/setup", name: "truco-setup", component: TrucoSetupPage },
     {
