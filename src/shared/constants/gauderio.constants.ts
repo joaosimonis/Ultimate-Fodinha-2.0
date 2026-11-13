@@ -3,9 +3,11 @@ import emptyAnimation from "@/assets/animation/gauderio-vazio.json";
 import errorAnimation from "@/assets/animation/gauderio-erro.json";
 import staticAnimation from "@/assets/animation/gauderio-estatico.json";
 import greetingAnimation from "@/assets/animation/gauderio-cumprimento.json";
+import victoryAnimation from "@/assets/animation/gauderio-vitoria.json";
 import type { GauderioAnimationConfig, GauderioState } from "@/shared/types/gauderio.types";
 
 export const GAUDERIO_ANIMATIONS = {
+  victory: { src: victoryAnimation, autoplay: true, loop: true },
   loading: { src: loadingAnimation, autoplay: true, loop: true },
   empty: { src: emptyAnimation, autoplay: true, loop: false },
   error: { src: errorAnimation, autoplay: true, loop: false },

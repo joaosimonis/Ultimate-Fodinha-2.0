@@ -48,7 +48,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, watch } from "vue";
+import { computed, onMounted, onBeforeUnmount, watch } from "vue";
 
 import SetupHeader from "@/shared/components/SetupHeader.vue";
 import FodinhaPlayerCard from "@/modules/fodinha/components/FodinhaPlayerCard.vue";
@@ -60,7 +60,7 @@ import { useConfetti } from "@/shared/composables/useConfetti";
 import RoomStatusBar from "@/shared/components/RoomStatusBar.vue";
 import temaDaVitoriaAudio from "@/assets/audios/vitoria/tema-da-vitoria.mp3";
 
-const { fireConfetti } = useConfetti();
+const { fireConfetti, stopConfetti } = useConfetti();
 const { request } = useWakeLock();
 const { fodinhaStore, confirmExit, showWinner, topThree, isFinishing, isStartingRematch, finishError, openExitConfirmation, closeExitConfirmation, exitGame, newGameSamePlayers, reconfigure, goHome } = useFodinhaGame();
 const roomSocket = useRoomSocket();
@@ -68,6 +68,18 @@ const victoryAudio = new Audio(temaDaVitoriaAudio);
 victoryAudio.volume = 1;
 const isHost = computed(() => Boolean(fodinhaStore.hostToken));
 const canControlRoom = computed(() => isHost.value && roomSocket.status.value === "connected");
+
+const stopVictoryEffects = () => {
+  stopConfetti();
+  victoryAudio.pause();
+  victoryAudio.currentTime = 0;
+};
+
+watch(showWinner, (visible) => {
+  if (!visible) stopVictoryEffects();
+}, { flush: "sync" });
+
+onBeforeUnmount(stopVictoryEffects);
 
 const getLivesByPlayerId = () =>
   fodinhaStore.players.reduce<Record<string, number>>((livesByPlayerId, player) => {

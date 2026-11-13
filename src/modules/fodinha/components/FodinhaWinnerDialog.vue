@@ -1,13 +1,13 @@
 <template>
-  <v-dialog :model-value="modelValue" persistent max-width="360" @update:model-value="$emit('update:modelValue', $event)">
+  <v-dialog :model-value="modelValue" persistent scrollable max-width="360" @update:model-value="$emit('update:modelValue', $event)">
     <v-card rounded="lg" class="text-center">
       <v-card-text class="pa-6">
-        <WinnerHero :winner-name="winner?.name ?? ''" :winners="winner ? [winner.name] : []" />
+        <WinnerHero v-if="modelValue && winner" :winner-name="winner?.name ?? ''" :winners="winner ? [winner.name] : []" />
         <div v-if="topThree.length > 1" class="mb-6 text-left">
           <p class="text-subtitle-2 font-weight-bold mb-2">Ranking</p>
           <div v-for="(player, index) in topThree" :key="player.id" class="d-flex align-center ga-2 mb-1">
             <span>{{ medals[index] }}</span>
-            <span>{{ player.name }}</span>
+            <span class="winner-dialog__player-name">{{ player.name }}</span>
           </div>
         </div>
         <v-alert v-if="finishError" type="error" variant="tonal" density="compact" class="mb-4 text-left">
@@ -60,6 +60,11 @@ const medals = ["🥇", "🥈", "🥉"];
 </script>
 
 <style scoped>
+.winner-dialog__player-name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 .winner-dialog__home-btn {
   background: rgba(var(--v-theme-on-surface), 0.03);
   border-color: rgba(var(--v-theme-on-surface), 0.08);

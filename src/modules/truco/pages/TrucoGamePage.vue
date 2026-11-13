@@ -35,10 +35,10 @@
     </v-dialog>
 
     <!-- Dialog: Vencedor -->
-    <v-dialog v-model="showWinner" persistent max-width="360">
+    <v-dialog v-model="showWinner" persistent scrollable max-width="360">
       <v-card rounded="lg" class="text-center">
         <v-card-text class="pa-6">
-          <WinnerHero class="mb-6" :winner-name="trucoStore.winner ? trucoStore.teamName(trucoStore.winner) : ''" :winners="trucoStore.winner ? trucoStore.winner.players.map((p) => p.name) : []" />
+          <WinnerHero v-if="showWinner && trucoStore.winner" class="mb-6" :winner-name="trucoStore.winner ? trucoStore.teamName(trucoStore.winner) : ''" :winners="trucoStore.winner ? trucoStore.winner.players.map((p) => p.name) : []" />
 
           <!-- Scoreboard -->
           <div class="scoreboard mb-6">
@@ -93,7 +93,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, onMounted } from "vue";
+import { computed, ref, watch, onMounted, onBeforeUnmount } from "vue";
 import { useRouter } from "vue-router";
 import { getApiErrorMessage } from "@/api/error";
 import { matchesApi } from "@/modules/matches/api";
@@ -118,7 +118,7 @@ const teamTwo = computed(() => trucoStore.teams[1] ?? null);
 const isHost = computed(() => Boolean(trucoStore.hostToken));
 const canControlRoom = computed(() => isHost.value && roomSocket.status.value === "connected");
 
-const { fireConfetti } = useConfetti();
+const { fireConfetti, stopConfetti } = useConfetti();
 const { request } = useWakeLock();
 const victoryAudio = new Audio(temaDaVitoriaAudio);
 victoryAudio.volume = 1;
@@ -133,6 +133,18 @@ const exitGame = () => {
 };
 
 const showWinner = ref(Boolean(trucoStore.winner));
+
+const stopVictoryEffects = () => {
+  stopConfetti();
+  victoryAudio.pause();
+  victoryAudio.currentTime = 0;
+};
+
+watch(showWinner, (visible) => {
+  if (!visible) stopVictoryEffects();
+}, { flush: "sync" });
+
+onBeforeUnmount(stopVictoryEffects);
 
 const getScoresByTeamId = () =>
   trucoStore.teams.reduce<Record<string, number>>((scoresByTeamId, team) => {
@@ -342,6 +354,8 @@ onMounted(() => {
 }
 
 .scoreboard__name {
+  overflow-wrap: anywhere;
+  min-width: 0;
   font-size: 0.75rem;
   color: rgba(var(--v-theme-on-surface), 0.5);
   word-break: break-word;
