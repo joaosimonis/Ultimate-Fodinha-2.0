@@ -1,7 +1,10 @@
 <template>
-  <div class="app-error-state">
-    <v-icon :icon="icon" size="64" class="text-medium-emphasis" />
+  <div class="app-error-state" role="alert" aria-atomic="true">
+    <GauderioAnimation state="error" />
 
+    <h2 v-if="title" class="app-error-state__title text-subtitle-1 font-weight-bold">
+      {{ title }}
+    </h2>
     <p class="app-error-state__message">
       {{ message }}
     </p>
@@ -13,15 +16,17 @@
 </template>
 
 <script setup lang="ts">
+import GauderioAnimation from "@/shared/components/GauderioAnimation.vue";
+
 withDefaults(
   defineProps<{
     message: string;
+    title?: string;
     actionLabel?: string;
-    icon?: string;
   }>(),
   {
+    title: "",
     actionLabel: "",
-    icon: "mdi-alert-circle-outline",
   }
 );
 
@@ -39,6 +44,10 @@ defineEmits<{
   gap: 16px;
   padding: 48px 16px;
   text-align: center;
+}
+
+.app-error-state__title {
+  margin: 0;
 }
 
 .app-error-state__message {

@@ -15,10 +15,7 @@
 
         <AppErrorState v-else-if="loadError" :message="loadError" action-label="Tentar novamente" @action="loadRooms" />
 
-        <div v-else-if="filteredRooms.length === 0" class="empty-state text-center text-medium-emphasis">
-          <v-icon icon="mdi-lan-disconnect" size="56" class="mb-3" />
-          <p>Nenhuma sala em andamento.</p>
-        </div>
+        <AppEmptyState v-else-if="filteredRooms.length === 0" message="Nenhuma sala em andamento." />
 
         <div v-else class="d-flex flex-column ga-3">
           <v-card v-for="room in filteredRooms" :key="room.id" rounded="lg" variant="outlined">
@@ -65,6 +62,7 @@ import { getApiErrorMessage } from "@/api/error";
 import { matchesApi } from "@/modules/matches/api";
 import type { MatchMode, MatchResponse } from "@/modules/matches/types/matches.types";
 import { useJoinRoom } from "@/modules/rooms/composables/useJoinRoom";
+import AppEmptyState from "@/shared/components/AppEmptyState.vue";
 import AppErrorState from "@/shared/components/AppErrorState.vue";
 import AppLoading from "@/shared/components/AppLoading.vue";
 import SetupHeader from "@/shared/components/SetupHeader.vue";
@@ -73,7 +71,7 @@ type RoomModeFilter = MatchMode | "all";
 
 const selectedMode = ref<RoomModeFilter>("all");
 const rooms = ref<MatchResponse[]>([]);
-const isLoading = ref(false);
+const isLoading = ref(true);
 const loadError = ref("");
 const joinError = ref("");
 const joiningRoomCode = ref<string | null>(null);
@@ -163,7 +161,4 @@ onMounted(() => {
   text-transform: none;
 }
 
-.empty-state {
-  padding: 80px 16px;
-}
 </style>

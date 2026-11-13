@@ -4,22 +4,11 @@
 
     <v-container class="flex-grow-1 py-6">
       <div class="players-wrapper mx-auto">
-        <div v-if="playersStore.error" class="text-center py-12">
-          <v-icon icon="mdi-alert-circle-outline" size="64" class="text-error mb-4" />
-          <p class="text-subtitle-1 font-weight-bold mb-1">Não foi possível carregar jogadores</p>
-          <p class="text-caption text-medium-emphasis mb-6">{{ playersStore.error }}</p>
-          <v-btn color="secondary" rounded="lg" @click="loadPlayers">
-            <v-icon start icon="mdi-refresh" />
-            Tentar novamente
-          </v-btn>
-        </div>
+        <AppLoading v-if="isInitialLoading || playersStore.isLoading" message="Carregando jogadores..." />
 
-        <!-- Estado vazio -->
-        <div v-else-if="playersStore.players.length === 0" class="text-center py-12">
-          <v-icon icon="mdi-account-group-outline" size="64" class="text-medium-emphasis mb-4" />
-          <p class="text-subtitle-1 font-weight-bold mb-1">Nenhum jogador encontrado</p>
-          <p class="text-caption text-medium-emphasis mb-6">Os personagens cadastrados aparecerão aqui.</p>
-        </div>
+        <AppErrorState v-else-if="playersStore.error" title="Não foi possível carregar jogadores" :message="playersStore.error" action-label="Tentar novamente" @action="loadPlayers" />
+
+        <AppEmptyState v-else-if="playersStore.hasLoaded && playersStore.players.length === 0" title="Nenhum jogador encontrado" message="Os personagens cadastrados aparecerão aqui." />
 
         <!-- Grid de jogadores -->
         <div v-else class="players-grid">
@@ -42,8 +31,11 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
+import AppEmptyState from "@/shared/components/AppEmptyState.vue";
+import AppErrorState from "@/shared/components/AppErrorState.vue";
+import AppLoading from "@/shared/components/AppLoading.vue";
 import SetupHeader from "@/shared/components/SetupHeader.vue";
 import { usePlayersStore } from "@/shared/store/usePlayersStore";
 import { getPlayerAvatarUrl } from "@/shared/utils/avatar";
@@ -51,10 +43,16 @@ import { getPlayerAvatarUrl } from "@/shared/utils/avatar";
 const router = useRouter();
 const playersStore = usePlayersStore();
 
-const loadPlayers = () => {
-  void playersStore.loadPlayers().catch(() => {
+const isInitialLoading = ref(true);
+
+const loadPlayers = async () => {
+  try {
+    await playersStore.loadPlayers();
+  } catch {
     // Error state is already exposed by the store.
-  });
+  } finally {
+    isInitialLoading.value = false;
+  }
 };
 
 onMounted(loadPlayers);

@@ -25,30 +25,21 @@
 
         <v-tabs-window v-else v-model="activeTab">
           <v-tabs-window-item value="fodinha">
-            <div v-if="fodinhaRanking.length === 0" class="empty-state">
-              <v-icon icon="mdi-cards-spade" size="48" class="text-medium-emphasis mb-3" />
-              <p class="text-body-2 text-medium-emphasis">Nenhuma partida registrada ainda</p>
-            </div>
+            <AppEmptyState v-if="fodinhaRanking.length === 0" message="Nenhuma partida registrada ainda" />
             <div v-else class="d-flex flex-column ga-3">
               <FodinhaRankingCard v-for="player in fodinhaRanking" :key="player.player_id" :stats="player" :position="player.position" />
             </div>
           </v-tabs-window-item>
 
           <v-tabs-window-item value="truco-duo">
-            <div v-if="trucoDuoRanking.length === 0" class="empty-state">
-              <v-icon icon="mdi-account-multiple" size="48" class="text-medium-emphasis mb-3" />
-              <p class="text-body-2 text-medium-emphasis">Nenhuma partida registrada ainda</p>
-            </div>
+            <AppEmptyState v-if="trucoDuoRanking.length === 0" message="Nenhuma partida registrada ainda" />
             <div v-else class="d-flex flex-column ga-3">
               <TrucoRankingCard v-for="team in trucoDuoRanking" :key="team.team_key" :stats="team" :position="team.position" />
             </div>
           </v-tabs-window-item>
 
           <v-tabs-window-item value="truco-trio">
-            <div v-if="trucoTrioRanking.length === 0" class="empty-state">
-              <v-icon icon="mdi-account-group" size="48" class="text-medium-emphasis mb-3" />
-              <p class="text-body-2 text-medium-emphasis">Nenhuma partida registrada ainda</p>
-            </div>
+            <AppEmptyState v-if="trucoTrioRanking.length === 0" message="Nenhuma partida registrada ainda" />
             <div v-else class="d-flex flex-column ga-3">
               <TrucoRankingCard v-for="team in trucoTrioRanking" :key="team.team_key" :stats="team" :position="team.position" />
             </div>
@@ -66,6 +57,7 @@ import { rankingApi } from "@/modules/ranking/api";
 import FodinhaRankingCard from "@/modules/ranking/components/FodinhaRankingCard.vue";
 import TrucoRankingCard from "@/modules/ranking/components/TrucoRankingCard.vue";
 import type { FodinhaRankingResponse, TrucoTeamRankingResponse } from "@/modules/ranking/types/ranking.types";
+import AppEmptyState from "@/shared/components/AppEmptyState.vue";
 import AppErrorState from "@/shared/components/AppErrorState.vue";
 import AppLoading from "@/shared/components/AppLoading.vue";
 import SetupPageHeader from "@/shared/components/SetupHeader.vue";
@@ -74,7 +66,7 @@ const activeTab = ref("fodinha");
 const fodinhaRanking = ref<FodinhaRankingResponse[]>([]);
 const trucoDuoRanking = ref<TrucoTeamRankingResponse[]>([]);
 const trucoTrioRanking = ref<TrucoTeamRankingResponse[]>([]);
-const isLoading = ref(false);
+const isLoading = ref(true);
 const error = ref("");
 
 const loadRankings = async () => {
@@ -130,14 +122,6 @@ onMounted(() => {
   text-transform: none;
 }
 
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 48px 16px;
-  text-align: center;
-}
 
 :deep(.v-tabs-window) {
   overflow: visible !important;

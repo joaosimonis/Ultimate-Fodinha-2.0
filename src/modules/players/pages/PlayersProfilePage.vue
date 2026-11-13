@@ -43,7 +43,7 @@
       </v-container>
     </div>
 
-    <AppErrorState v-else class="flex-grow-1" :message="errorMessage" icon="mdi-account-question" action-label="Ir para início" @action="goHome" />
+    <AppErrorState v-else class="flex-grow-1" :message="errorMessage" action-label="Ir para início" @action="goHome" />
   </div>
 </template>
 
@@ -62,7 +62,7 @@ const router = useRouter();
 const route = useRoute();
 
 const player = ref<PlayerResponse | null>(null);
-const isLoading = ref(false);
+const isLoading = ref(true);
 const error = ref<string | null>(null);
 
 const loreParagraphs = computed(() => player.value?.lore.split("\n\n").filter(Boolean) ?? []);
@@ -72,6 +72,7 @@ const loadPlayer = async () => {
   const playerId = String(route.params.id ?? "");
   if (!playerId) {
     error.value = "Jogador não encontrado";
+    isLoading.value = false;
     return;
   }
 

@@ -1,9 +1,16 @@
 <template>
-  <Vue3Lottie :animation-data="src" :width="size" :height="size" :autoplay="autoplay" :loop="loop" />
+  <Vue3Lottie ref="animation" :animation-data="src" :width="size" :height="size" :auto-play="autoplay" :loop="loop" />
 </template>
 
 <script setup lang="ts">
+import { onBeforeUnmount, ref } from "vue";
 import { Vue3Lottie } from "vue3-lottie";
+
+const animation = ref<InstanceType<typeof Vue3Lottie> | null>(null);
+
+onBeforeUnmount(() => {
+  animation.value?.destroy();
+});
 
 withDefaults(
   defineProps<{
